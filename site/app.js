@@ -19,6 +19,7 @@ const TEXTS = {
     onlineNoteMore: "GamePort focuses on single player and saves. The online part of a game, its multiplayer and its servers, often does not work on these devices yet, and a game that needs its servers can refuse to launch.",
     multiNote: "The multiplayer part of this game may not work, and the game may not even start.",
     deviceLabel: "Device", compatLabel: "Reports",
+    types: { demo: "Demo", beta: "Beta", application: "App" },
     search: "Search games", all: "All", vr: "VR", flat: "Flat",
     devices: { all: "All devices", quest: "Quest", pico: "Pico", phone: "Phone", tablet: "Tablet", other: "Other" },
     compat: { all: "Any report", works: "Works", issues: "Problems", none: "No report" },
@@ -54,6 +55,7 @@ const TEXTS = {
     onlineNoteMore: "GamePort se concentre sur le jeu solo et les sauvegardes. La partie en ligne d'un jeu, son multijoueur et ses serveurs, ne fonctionne souvent pas encore sur ces appareils, et un jeu qui a besoin de ses serveurs peut refuser de se lancer.",
     multiNote: "La partie multijoueur de ce jeu peut ne pas fonctionner, et le jeu peut même ne pas démarrer.",
     deviceLabel: "Appareil", compatLabel: "Rapports",
+    types: { demo: "Démo", beta: "Bêta", application: "Appli" },
     search: "Rechercher un jeu", all: "Tous", vr: "VR", flat: "Plat",
     devices: { all: "Tous les appareils", quest: "Quest", pico: "Pico", phone: "Téléphone", tablet: "Tablette", other: "Autre" },
     compat: { all: "Tout rapport", works: "Fonctionne", issues: "Problèmes", none: "Sans rapport" },
@@ -163,7 +165,7 @@ function card(g) {
   const label = t().levels[level];
   return `<a class="card${g.installable ? "" : " soon"}" href="#/g/${g.appid}" aria-label="${esc(g.name)}, ${esc(label)}">
     <div class="art">${g.cover ? `<img src="${esc(g.cover)}" alt="" loading="lazy">` : ""}
-      ${g.vr ? '<span class="tag">VR</span>' : ""}${g.installable ? "" : `<span class="tag soon-tag">${esc(t().soon)}</span>`}
+      ${g.vr ? '<span class="tag">VR</span>' : ""}${g.installable ? "" : `<span class="tag soon-tag">${esc(t().soon)}</span>`}${t().types[g.type] ? `<span class="tag soon-tag">${esc(t().types[g.type])}</span>` : ""}
       <span class="dot lv-${level}" title="${esc(label)}">${ICONS[level]}</span>
     </div>
     <div class="name">${esc(g.name)}</div>
@@ -329,8 +331,8 @@ async function load() {
     fetch("data/summary.json").then(r => r.json()).catch(() => ({ games: [] })),
   ]);
   if (!catalog.apps || !catalog.apps.length) throw new Error("the catalog is empty");
-  // Only the games whose Android version is published: the ones that are only announced are not listed.
-  state.games = catalog.apps.filter(a => (a.type === "game" || !a.type) && a.installable);
+  // Everything whose Android version is published (games, demos, betas, applications): the ones that are only announced are not listed.
+  state.games = catalog.apps.filter(a => a.installable);
   state.byId = new Map(catalog.apps.map(a => [a.appid, a]));
   state.summary = new Map((summary.games || []).map(g => [g.appId, g]));
 }
