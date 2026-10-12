@@ -101,7 +101,7 @@ main { max-width: 1240px; margin: 0 auto; padding: 28px 24px 56px; }
   display: grid; place-items: center; background: rgba(13, 16, 22, .78); border: 1px solid var(--line);
 }
 .dot svg { width: 17px; height: 17px; }
-.lv-works { color: var(--works); } .lv-offline, .lv-mixed { color: var(--mixed); } .lv-fails { color: var(--fails); } .lv-none { color: var(--none); }
+.lv-works { color: var(--works); } .lv-offline, .lv-mixed { color: var(--mixed); } .lv-fails, .lv-incompatible { color: var(--fails); } .lv-none { color: var(--none); }
 
 .empty { text-align: center; color: var(--muted); padding: 56px 0; }
 
@@ -299,3 +299,4 @@ img.mark { display: block; width: 34px; height: 34px; border-radius: 9px; backgr
 .card .art.wide::before { content: ""; position: absolute; inset: -12px; background: var(--wide) center / cover; filter: blur(16px) brightness(.55); }
 .card .art.wide img { object-fit: contain; }
 .card .art.wide .tag, .card .art.wide .dot { z-index: 2; }
+.panel p.warn.inline.lv-incompatible { color: var(--fails); }

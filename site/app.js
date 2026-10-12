@@ -22,13 +22,14 @@ const TEXTS = {
     types: { demo: "Demo", beta: "Beta", application: "App" },
     latestTitle: "Latest additions", latestLead: "The latest Android versions the catalog has seen.", prev: "Previous", next: "Next",
     adultLabel: "Adult content", adult: { all: "Adult: all", only: "Adult only", hidden: "No adult" },
+    demoOf: "Demo of", hasDemo: "A demo is available", tryDemo: "Try the demo",
     search: "Search games", all: "All", vr: "VR", flat: "Flat",
     devices: { all: "All devices", quest: "Quest", pico: "Pico", phone: "Phone", tablet: "Tablet", other: "Other" },
     compat: { all: "Any report", works: "Works", issues: "Problems", none: "No report" },
     sort: "Sort", sorts: { reports: "Reports first", name: "Name", rating: "Rating", recent: "Newest" },
     shown: (n, total) => (n === total ? `${total} games` : `${n} of ${total} games`),
     empty: "No game matches.", soon: "Soon", back: "All games",
-    levels: { works: "Works", offline: "Works offline only", mixed: "Mixed reports", fails: "Problems reported", none: "No report yet" },
+    levels: { works: "Works", offline: "Works offline only", mixed: "Mixed reports", fails: "Problems reported", incompatible: "Incompatible", none: "No report yet" },
     reports: "What players report", reportsNone: "No player has said anything about this game yet.",
     unreliable: "Few answers so far: the result may not be reliable.",
     nums: (w, o, f) => `${w} works, ${o} offline only, ${f} problems`,
@@ -60,13 +61,14 @@ const TEXTS = {
     types: { demo: "Démo", beta: "Bêta", application: "Appli" },
     latestTitle: "Derniers ajouts", latestLead: "Les dernières versions Android vues par le catalogue.", prev: "Précédent", next: "Suivant",
     adultLabel: "Contenu pour adultes", adult: { all: "Adultes : tous", only: "Adultes seulement", hidden: "Sans adultes" },
+    demoOf: "Démo de", hasDemo: "Une démo est disponible", tryDemo: "Essayer la démo",
     search: "Rechercher un jeu", all: "Tous", vr: "VR", flat: "Plat",
     devices: { all: "Tous les appareils", quest: "Quest", pico: "Pico", phone: "Téléphone", tablet: "Tablette", other: "Autre" },
     compat: { all: "Tout rapport", works: "Fonctionne", issues: "Problèmes", none: "Sans rapport" },
     sort: "Tri", sorts: { reports: "Rapports d'abord", name: "Nom", rating: "Note", recent: "Récents" },
     shown: (n, total) => (n === total ? `${total} jeux` : `${n} jeux sur ${total}`),
     empty: "Aucun jeu ne correspond.", soon: "Bientôt", back: "Tous les jeux",
-    levels: { works: "Fonctionne", offline: "Fonctionne hors ligne seulement", mixed: "Avis partagés", fails: "Problèmes signalés", none: "Pas encore de rapport" },
+    levels: { works: "Fonctionne", offline: "Fonctionne hors ligne seulement", mixed: "Avis partagés", fails: "Problèmes signalés", incompatible: "Incompatible", none: "Pas encore de rapport" },
     reports: "Ce que rapportent les joueurs", reportsNone: "Aucun joueur n'a encore donné son avis sur ce jeu.",
     unreliable: "Peu de réponses pour l'instant : le résultat peut ne pas être fiable.",
     nums: (w, o, f) => `${w} fonctionne, ${o} hors ligne seulement, ${f} problèmes`,
@@ -99,7 +101,7 @@ const ICONS = {
 
 const DISCORD_ICON = '<svg class="dc" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>';
 
-const state = { lang: "en", games: [], byId: new Map(), summary: new Map(), type: "all", device: "all", compat: "all", adult: "all", sort: "reports", query: "" };
+const state = { lang: "en", games: [], byId: new Map(), summary: new Map(), incompatible: new Map(), reasons: {}, type: "all", device: "all", compat: "all", adult: "all", sort: "reports", query: "" };
 
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const t = () => TEXTS[state.lang];
@@ -132,7 +134,13 @@ function countsFor(appId, device) {
   return game.devices?.[device] ?? null;
 }
 
-const RANK = { works: 0, offline: 1, mixed: 2, fails: 3 };
+const RANK = { works: 0, offline: 1, mixed: 2, fails: 3, incompatible: 4 };
+
+/** What a game is known as: incompatible when it is on the developer's list (whatever the players said), else the verdict of the answers, else null. */
+function standing(g, device) {
+  if (state.incompatible.has(g.appid)) return { level: "incompatible", total: 0, unreliable: false };
+  return verdict(countsFor(g.appid, device));
+}
 
 function visible() {
   const q = state.query.trim().toLowerCase();
@@ -142,14 +150,14 @@ function visible() {
     if (state.type === "flat" && g.vr) return false;
     if (state.adult === "only" && !isAdult(g)) return false;
     if (state.adult === "hidden" && isAdult(g)) return false;
-    const v = verdict(countsFor(g.appid, state.device));
+    const v = standing(g, state.device);
     if (state.compat === "works" && !(v && (v.level === "works" || v.level === "offline"))) return false;
-    if (state.compat === "issues" && !(v && (v.level === "mixed" || v.level === "fails"))) return false;
+    if (state.compat === "issues" && !(v && (v.level === "mixed" || v.level === "fails" || v.level === "incompatible"))) return false;
     if (state.compat === "none" && v) return false;
     return true;
   });
   const byName = (a, b) => a.name.localeCompare(b.name, state.lang);
-  const key = g => verdict(countsFor(g.appid, state.device));
+  const key = g => standing(g, state.device);
   if (state.sort === "name") list.sort(byName);
   else if (state.sort === "rating") list.sort((a, b) => (b.reviewPercent ?? -1) - (a.reviewPercent ?? -1) || byName(a, b));
   else if (state.sort === "recent") list.sort((a, b) => (b.androidSince ?? "").localeCompare(a.androidSince ?? "") || byName(a, b));
@@ -165,7 +173,7 @@ function visible() {
 }
 
 function mark(level, extra = "") {
-  return `<span class="lv-${level} ${extra}" aria-hidden="true">${ICONS[level === "offline" ? "offline" : level]}</span>`;
+  return `<span class="lv-${level} ${extra}" aria-hidden="true">${ICONS[level === "offline" ? "offline" : level === "incompatible" ? "fails" : level]}</span>`;
 }
 
 /**
@@ -190,13 +198,13 @@ document.addEventListener("error", e => {
 }, true);
 
 function card(g) {
-  const v = verdict(countsFor(g.appid, state.device));
+  const v = standing(g, state.device);
   const level = v ? v.level : "none";
   const label = t().levels[level];
   return `<a class="card${g.installable ? "" : " soon"}" href="#/g/${g.appid}" aria-label="${esc(g.name)}, ${esc(label)}">
     <div class="art">${picture(g)}
       ${g.vr ? '<span class="tag">VR</span>' : ""}${g.installable ? "" : `<span class="tag soon-tag">${esc(t().soon)}</span>`}${t().types[g.type] ? `<span class="tag soon-tag">${esc(t().types[g.type])}</span>` : ""}
-      <span class="dot lv-${level}" title="${esc(label)}">${ICONS[level]}</span>
+      <span class="dot lv-${level}" title="${esc(label)}">${ICONS[level === "incompatible" ? "fails" : level]}</span>
     </div>
     <div class="name">${esc(g.name)}</div>
   </a>`;
@@ -315,6 +323,18 @@ function renderGame(id) {
     return;
   }
   document.title = `${g.name} · GamePort`;
+  // A demo of this game (an app of the catalog whose parent it is), and, on a demo, the game it belongs to.
+  const demos = state.games.filter(d => d.parent === g.appid && d.type === "demo");
+  const parent = g.parent ? state.byId.get(g.parent) : null;
+  const related = [
+    ...demos.map(d => `<a class="btn" href="#/g/${d.appid}">${esc(x.tryDemo)} · ${esc(d.name)}</a>`),
+    parent ? `<a class="btn" href="#/g/${parent.appid}">${esc(x.demoOf)} ${esc(parent.name)}</a>` : "",
+  ].join("");
+  const blocked = state.incompatible.get(g.appid);
+  const why = blocked ? state.reasons[blocked.reason] : null;
+  const blockedNote = blocked && why
+    ? `<p class="warn inline lv-incompatible"><span class="warn-mark" aria-hidden="true">${ICONS.fails}</span><span><strong>${esc(x.levels.incompatible)}</strong>${state.lang === "fr" ? " : " : ": "}${esc(why.title[state.lang] ?? why.title.en)}${state.lang === "fr" ? " : " : ": "}${esc(why.text[state.lang] ?? why.text.en)}</span></p>`
+    : "";
   const rows = DEVICES.map(d => {
     const c = countsFor(g.appid, d);
     if (!c) return null;
@@ -347,6 +367,7 @@ function renderGame(id) {
     </section>
     <div class="cols">
       <section class="panel"><h2>${esc(x.reports)}</h2>
+        ${blockedNote}
         ${(g.modes || []).some(m => m === "multi" || m === "coop") ? `<p class="warn inline"><span class="warn-mark" aria-hidden="true">${ICONS.exclaim}</span>${esc(x.multiNote)}</p>` : ""}
         ${rows.length ? `<div class="rows">${rows.join("")}</div>` : `<p>${esc(x.reportsNone)}</p>`}
         ${g.installable ? "" : `<p>${esc(x.notYet)}</p>`}
@@ -354,6 +375,7 @@ function renderGame(id) {
       <section class="panel"><h2>${esc(x.howTitle)}</h2><p>${esc(x.how)}</p>
         <div class="actions">
           ${g.store ? `<a class="btn" href="${esc(g.store)}">${esc(x.steam)}</a>` : ""}
+          ${related}
           <a class="btn fill" href="https://github.com/gameport-project/gameport-app/releases/latest">${esc(x.getApp)}</a>
         </div></section>
     </div>`;
@@ -384,15 +406,18 @@ function pickLanguage() {
 }
 
 async function load() {
-  const [catalog, summary] = await Promise.all([
+  const [catalog, summary, incompatible] = await Promise.all([
     fetch("data/catalog.json").then(r => r.json()),
     fetch("data/summary.json").then(r => r.json()).catch(() => ({ games: [] })),
+    fetch("data/incompatible.json").then(r => r.json()).catch(() => ({ games: [] })),
   ]);
   if (!catalog.apps || !catalog.apps.length) throw new Error("the catalog is empty");
   // Everything whose Android version is published (games, demos, betas, applications): the ones that are only announced are not listed.
   state.games = catalog.apps.filter(a => a.installable);
   state.byId = new Map(catalog.apps.map(a => [a.appid, a]));
   state.summary = new Map((summary.games || []).map(g => [g.appId, g]));
+  state.incompatible = new Map((incompatible.games || []).map(g => [g.appId, g]));
+  state.reasons = incompatible.reasons || {};
 }
 
 document.getElementById("lang").addEventListener("click", () => {
