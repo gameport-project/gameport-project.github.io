@@ -20,6 +20,8 @@ const TEXTS = {
     multiNote: "The multiplayer part of this game may not work, and the game may not even start.",
     deviceLabel: "Device", compatLabel: "Reports",
     types: { demo: "Demo", beta: "Beta", application: "App" },
+    latestTitle: "Latest additions", latestLead: "The latest Android versions the catalog has seen.", prev: "Previous", next: "Next",
+    adultLabel: "Adult content", adult: { all: "Adult: all", only: "Adult only", hidden: "No adult" },
     search: "Search games", all: "All", vr: "VR", flat: "Flat",
     devices: { all: "All devices", quest: "Quest", pico: "Pico", phone: "Phone", tablet: "Tablet", other: "Other" },
     compat: { all: "Any report", works: "Works", issues: "Problems", none: "No report" },
@@ -56,6 +58,8 @@ const TEXTS = {
     multiNote: "La partie multijoueur de ce jeu peut ne pas fonctionner, et le jeu peut même ne pas démarrer.",
     deviceLabel: "Appareil", compatLabel: "Rapports",
     types: { demo: "Démo", beta: "Bêta", application: "Appli" },
+    latestTitle: "Derniers ajouts", latestLead: "Les dernières versions Android vues par le catalogue.", prev: "Précédent", next: "Suivant",
+    adultLabel: "Contenu pour adultes", adult: { all: "Adultes : tous", only: "Adultes seulement", hidden: "Sans adultes" },
     search: "Rechercher un jeu", all: "Tous", vr: "VR", flat: "Plat",
     devices: { all: "Tous les appareils", quest: "Quest", pico: "Pico", phone: "Téléphone", tablet: "Tablette", other: "Autre" },
     compat: { all: "Tout rapport", works: "Fonctionne", issues: "Problèmes", none: "Sans rapport" },
@@ -78,6 +82,9 @@ const TEXTS = {
 
 const DEVICES = ["all", "quest", "pico", "phone", "tablet", "other"];
 const MIN_PLAYERS = 3;
+/* The store tags of nudity and sexual content: Nudity, Sexual Content, NSFW, Hentai. */
+const ADULT_TAGS = new Set([6650, 12095, 24904, 9130]);
+const isAdult = g => (g.tags || []).some(t => ADULT_TAGS.has(t));
 const WORKS_SHARE = 0.75;
 const FAILS_SHARE = 0.25;
 
@@ -92,7 +99,7 @@ const ICONS = {
 
 const DISCORD_ICON = '<svg class="dc" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>';
 
-const state = { lang: "en", games: [], byId: new Map(), summary: new Map(), type: "all", device: "all", compat: "all", sort: "reports", query: "" };
+const state = { lang: "en", games: [], byId: new Map(), summary: new Map(), type: "all", device: "all", compat: "all", adult: "all", sort: "reports", query: "" };
 
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const t = () => TEXTS[state.lang];
@@ -133,6 +140,8 @@ function visible() {
     if (q && !g.name.toLowerCase().includes(q)) return false;
     if (state.type === "vr" && !g.vr) return false;
     if (state.type === "flat" && g.vr) return false;
+    if (state.adult === "only" && !isAdult(g)) return false;
+    if (state.adult === "hidden" && isAdult(g)) return false;
     const v = verdict(countsFor(g.appid, state.device));
     if (state.compat === "works" && !(v && (v.level === "works" || v.level === "offline"))) return false;
     if (state.compat === "issues" && !(v && (v.level === "mixed" || v.level === "fails"))) return false;
@@ -159,12 +168,33 @@ function mark(level, extra = "") {
   return `<span class="lv-${level} ${extra}" aria-hidden="true">${ICONS[level === "offline" ? "offline" : level]}</span>`;
 }
 
+/**
+ * The cover of an app, with the other pictures it has for when Steam has no file under the cover's name (it happens for recent apps and demos): the page tries them
+ * one after the other, see the listener below.
+ */
+function picture(g) {
+  const urls = [g.cover, g.header, g.capsule, g.banner].filter((u, i, all) => u && all.indexOf(u) === i);
+  if (!urls.length) return "";
+  return `<img src="${esc(urls[0])}" data-next="${esc(urls.slice(1).join(" "))}" alt="" loading="lazy">`;
+}
+
+document.addEventListener("error", e => {
+  const img = e.target;
+  if (!(img instanceof HTMLImageElement) || !img.dataset.next) { if (img instanceof HTMLImageElement) img.classList.add("broken"); return; }
+  const [next, ...rest] = img.dataset.next.split(" ");
+  img.dataset.next = rest.join(" ");
+  // What stands in for a missing cover is a wide picture: it is shown whole, on a blurred copy of itself, instead of cut to the shape of a cover.
+  const art = img.closest(".art");
+  if (art) { art.classList.add("wide"); art.style.setProperty("--wide", `url("${next}")`); }
+  img.src = next;
+}, true);
+
 function card(g) {
   const v = verdict(countsFor(g.appid, state.device));
   const level = v ? v.level : "none";
   const label = t().levels[level];
   return `<a class="card${g.installable ? "" : " soon"}" href="#/g/${g.appid}" aria-label="${esc(g.name)}, ${esc(label)}">
-    <div class="art">${g.cover ? `<img src="${esc(g.cover)}" alt="" loading="lazy">` : ""}
+    <div class="art">${picture(g)}
       ${g.vr ? '<span class="tag">VR</span>' : ""}${g.installable ? "" : `<span class="tag soon-tag">${esc(t().soon)}</span>`}${t().types[g.type] ? `<span class="tag soon-tag">${esc(t().types[g.type])}</span>` : ""}
       <span class="dot lv-${level}" title="${esc(label)}">${ICONS[level]}</span>
     </div>
@@ -178,6 +208,29 @@ function pick(name, options, current, labels, title) {
 
 function group(name, options, current, labels) {
   return `<div class="group" role="group" data-group="${name}">${options.map(o => `<button type="button" data-value="${o}" aria-pressed="${o === current}">${esc(labels[o])}</button>`).join("")}</div>`;
+}
+
+const LATEST_MAX = 40;
+
+/**
+ * The newest Android versions the catalog has seen, the last one scanned first, forty at most: the ones the catalog dated, by the day each arrived (in UTC). The
+ * catalog keeps no time of day, so among apps of the same day the one with the highest app id, the most recent on Steam, comes first.
+ */
+function latest() {
+  return state.games
+    .filter(g => g.androidSince)
+    .sort((a, b) => b.androidSince.localeCompare(a.androidSince) || b.appid - a.appid)
+    .slice(0, LATEST_MAX);
+}
+
+function latestSection(x) {
+  const list = latest();
+  if (!list.length) return "";
+  return `<section class="latest" aria-label="${esc(x.latestTitle)}">
+    <div class="latest-head"><div><h2>${esc(x.latestTitle)}</h2><p>${esc(x.latestLead)}</p></div>
+      <div class="arrows"><button type="button" data-dir="-1" aria-label="${esc(x.prev)}">‹</button><button type="button" data-dir="1" aria-label="${esc(x.next)}">›</button></div></div>
+    <div class="track" id="track">${list.map(card).join("")}</div>
+  </section>`;
 }
 
 function renderList() {
@@ -200,6 +253,7 @@ function renderList() {
     <section class="features">${x.features.map(([h, p]) => `<article class="feature"><h3>${esc(h)}</h3><p>${esc(p)}</p></article>`).join("")}</section>
     <p class="works-on">${esc(x.worksOn)}</p>
     <aside class="notice" role="note"><span class="warn-mark" aria-hidden="true">${ICONS.exclaim}</span><div><strong>${esc(x.onlineNote)}</strong><span>${esc(x.onlineNoteMore)}</span></div></aside>
+    ${latestSection(x)}
     <section class="hero" id="games"><h2>${esc(x.sectionTitle)}</h2><p>${esc(x.lead)}</p></section>
     <div class="tools">
       <div class="searchrow">
@@ -212,13 +266,17 @@ function renderList() {
         ${group("type", ["all", "vr", "flat"], state.type, typeLabels)}
         ${group("device", DEVICES, state.device, x.devices)}
         ${group("compat", ["all", "works", "issues", "none"], state.compat, x.compat)}
+        ${group("adult", ["all", "only", "hidden"], state.adult, x.adult)}
         ${pick("device", DEVICES, state.device, x.devices, x.deviceLabel)}
         ${pick("compat", ["all", "works", "issues", "none"], state.compat, x.compat, x.compatLabel)}
+        ${pick("adult", ["all", "only", "hidden"], state.adult, x.adult, x.adultLabel)}
       </div>
     </div>
     <p class="count" id="count"></p>
     <div class="grid" id="grid"></div>`;
   view.querySelector("[data-jump]").addEventListener("click", e => { e.preventDefault(); document.getElementById("games").scrollIntoView({ behavior: "smooth" }); });
+  const track = document.getElementById("track");
+  if (track) view.querySelectorAll(".arrows button").forEach(b => b.addEventListener("click", () => track.scrollBy({ left: Number(b.dataset.dir) * track.clientWidth * 0.85, behavior: "smooth" })));
   const q = document.getElementById("q");
   q.addEventListener("input", () => { state.query = q.value; paint(); });
   document.getElementById("sort").addEventListener("change", e => { state.sort = e.target.value; paint(); });

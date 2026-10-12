@@ -211,6 +211,7 @@ img.mark { display: block; width: 34px; height: 34px; border-radius: 9px; backgr
 .group:nth-child(1) { flex-grow: 3; }
 .group:nth-child(2) { flex-grow: 7; }
 .group:nth-child(3) { flex-grow: 5; }
+.group:nth-child(4) { flex-grow: 0; }
 .group button { flex: 1 1 auto; display: grid; place-items: center; padding: 0 14px; }
 @media (max-width: 0px) {
   .filters { flex-wrap: wrap; }
@@ -268,7 +269,8 @@ img.mark { display: block; width: 34px; height: 34px; border-radius: 9px; backgr
 
   .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .group[data-group="type"] { grid-column: 1 / -1; }
-  .group[data-group="device"], .group[data-group="compat"] { display: none; }
+  .group[data-group="device"], .group[data-group="compat"], .group[data-group="adult"] { display: none; }
+  .pick[data-pick="adult"] { grid-column: 1 / -1; }
   .pick { display: flex; }
 }
 @media (max-width: 400px) { .brand .name { display: none; } }
@@ -278,3 +280,22 @@ img.mark { display: block; width: 34px; height: 34px; border-radius: 9px; backgr
   .pick .pl { display: none; }
   .pick select { text-align: left; padding-left: 0; }
 }
+
+/* the latest additions: a strip of covers that scrolls sideways */
+.latest { margin: 0 0 40px; }
+.latest-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+.latest-head h2 { margin: 0 0 4px; font-size: clamp(22px, 3vw, 30px); letter-spacing: -.02em; }
+.latest-head p { margin: 0; color: var(--muted); }
+.arrows { display: flex; gap: 8px; flex: none; }
+.arrows button { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); color: var(--text); font-size: 22px; line-height: 1; cursor: pointer; }
+.arrows button:hover { background: var(--card-hover); }
+.track { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x proximity; padding: 4px 2px 12px; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .25) transparent; }
+.track .card { flex: 0 0 160px; scroll-snap-align: start; }
+@media (max-width: 600px) { .arrows { display: none; } .track .card { flex-basis: 138px; } }
+
+/* an image that no address could fill leaves the plain tile, not the browser's broken-image mark */
+.card .art img.broken { visibility: hidden; }
+
+.card .art.wide::before { content: ""; position: absolute; inset: -12px; background: var(--wide) center / cover; filter: blur(16px) brightness(.55); }
+.card .art.wide img { object-fit: contain; }
+.card .art.wide .tag, .card .art.wide .dot { z-index: 2; }
