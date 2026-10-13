@@ -5,6 +5,8 @@ const TEXTS = {
   en: {
     download: "Download", title: "Android versions of Steam games",
     lead: "Every Steam game that has an Android version, and what players report for each kind of device. The reports come from the players of GamePort, one answer for each player and game.",
+    pageTitle: "GamePort: play your Steam games on Quest, Pico and Android",
+    pageDescription: "GamePort is a free, open-source app that brings the Android versions of your Steam games to Meta Quest, Pico, other standalone VR headsets, Android phones and tablets. See which Steam games run on which device.",
     heroTitle: "Your Steam games, on Quest, Pico and any Android device.",
     heroLead: "GamePort is a free, open-source app that signs in to a Steam account, shows the Android versions of the games owned (or shared by the Steam family), and takes care of the rest: download, install, launch. Saves follow through Steam Cloud, and play time counts on the account.",
     heroGet: "Get GamePort", heroSee: "See the games", heroDiscord: "Join the Discord",
@@ -44,6 +46,8 @@ const TEXTS = {
   fr: {
     download: "Télécharger", title: "Les versions Android des jeux Steam",
     lead: "Tous les jeux Steam qui ont une version Android, et ce que les joueurs rapportent pour chaque type d'appareil. Les rapports viennent des joueurs de GamePort, une réponse par joueur et par jeu.",
+    pageTitle: "GamePort : jouer à ses jeux Steam sur Quest, Pico et Android",
+    pageDescription: "GamePort est une application gratuite et open source qui apporte les versions Android de vos jeux Steam sur Meta Quest, Pico, d'autres casques VR autonomes, téléphones et tablettes Android. Voir quels jeux Steam fonctionnent sur quel appareil.",
     heroTitle: "Les jeux Steam, sur Quest, Pico et tout appareil Android.",
     heroLead: "GamePort est une application gratuite et open source qui se connecte à un compte Steam, montre les versions Android des jeux possédés (ou partagés par la famille Steam), et s'occupe du reste : téléchargement, installation, lancement. Les sauvegardes suivent grâce à Steam Cloud, et le temps de jeu compte sur le compte.",
     heroGet: "Obtenir GamePort", heroSee: "Voir les jeux", heroDiscord: "Rejoindre le Discord",
@@ -60,7 +64,7 @@ const TEXTS = {
     deviceLabel: "Appareil", compatLabel: "Rapports",
     types: { demo: "Démo", beta: "Bêta", application: "Appli" },
     latestTitle: "Derniers ajouts", latestLead: "Les dernières versions Android vues par le catalogue.", prev: "Précédent", next: "Suivant",
-    adultLabel: "Contenu pour adultes", adult: { all: "Adultes : tous", only: "Adultes seulement", hidden: "Sans adultes" },
+    adultLabel: "Contenu pour adultes", adult: { all: "Tous publics et adultes", only: "Réservé aux adultes", hidden: "Tous publics" },
     demoOf: "Démo de", hasDemo: "Une démo est disponible", tryDemo: "Essayer la démo",
     search: "Rechercher un jeu", all: "Tous", vr: "VR", flat: "Plat",
     devices: { all: "Tous les appareils", quest: "Quest", pico: "Pico", phone: "Téléphone", tablet: "Tablette", other: "Autre" },
@@ -243,7 +247,8 @@ function latestSection(x) {
 
 function renderList() {
   const x = t();
-  document.title = "GamePort";
+  document.title = x.pageTitle;
+  document.querySelector('meta[name="description"]').setAttribute("content", x.pageDescription);
   const view = document.getElementById("view");
   const typeLabels = { all: x.all, vr: x.vr, flat: x.flat };
   view.innerHTML = `
