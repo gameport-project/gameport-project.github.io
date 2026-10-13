@@ -1,11 +1,11 @@
 name: Site
 
-# Builds the site and puts it on GitHub Pages: at every change, and every three hours, since the catalog and the players' answers change on their own.
+# Builds the site and puts it on GitHub Pages: at every change, and every hour, since the catalog and the players' answers change on their own.
 on:
   push:
     branches: [main]
   schedule:
-    - cron: "23 */3 * * *"
+    - cron: "11 * * * *"
   workflow_dispatch:
 
 permissions:
