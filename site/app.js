@@ -35,6 +35,7 @@ const TEXTS = {
     reports: "What players report", reportsNone: "No player has said anything about this game yet.",
     unreliable: "Few answers so far: the result may not be reliable.",
     nums: (w, o, f) => `${w} works, ${o} offline only, ${f} problems`,
+    fixed: (day, version) => `Problem solved on ${day}${version ? ` in version ${version}` : ""}, counted as works`,
     about: "About this game", rating: p => `${p}% of Steam reviews positive`, reviews: n => `${n.toLocaleString("en")} reviews`,
     release: "Released", developer: "Developer", frame: "Steam Frame", deck: "Steam Deck",
     verdicts: { verified: "verified", playable: "playable", unsupported: "unsupported", unknown: "unknown" },
@@ -76,6 +77,7 @@ const TEXTS = {
     reports: "Ce que rapportent les joueurs", reportsNone: "Aucun joueur n'a encore donné son avis sur ce jeu.",
     unreliable: "Peu de réponses pour l'instant : le résultat peut ne pas être fiable.",
     nums: (w, o, f) => `${w} fonctionne, ${o} hors ligne seulement, ${f} problèmes`,
+    fixed: (day, version) => `Problème réglé le ${day}${version ? ` dans la version ${version}` : ""}, compté comme fonctionnel`,
     about: "À propos de ce jeu", rating: p => `${p} % d'avis positifs sur Steam`, reviews: n => `${n.toLocaleString("fr")} avis`,
     release: "Sortie", developer: "Développeur", frame: "Steam Frame", deck: "Steam Deck",
     verdicts: { verified: "vérifié", playable: "jouable", unsupported: "non pris en charge", unknown: "inconnu" },
@@ -347,9 +349,12 @@ function renderGame(id) {
     if (!total) return null;
     const v = verdict(c);
     const level = v ? v.level : "none";
+    const fixes = (state.summary.get(g.appid)?.fixes ?? []).filter(f => d === "all" || f.device === d);
+    const fixedNote = fixes.map(f => `<span class="nums">${esc(x.fixed(f.day, f.version))}</span>`).join("");
     return `<div class="row"><span class="who">${esc(x.devices[d])}</span>
       <span class="lvl lv-${level}">${ICONS[level]}${esc(x.levels[level])}</span>
       <span class="nums">${esc(x.nums(c.works, c.offlineOnly, c.fails))}</span>
+      ${fixedNote}
       ${v && v.unreliable ? `<span class="warn"><span class="warn-mark" aria-hidden="true">${ICONS.exclaim}</span>${esc(x.unreliable)}</span>` : ""}</div>`;
   }).filter(Boolean);
   // "All devices" says nothing more than the only kind of device that answered.
