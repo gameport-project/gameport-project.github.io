@@ -17,14 +17,13 @@ const TEXTS = {
     ],
     worksOn: "Meta Quest, Pico, other Android headsets that run OpenXR games, and Android phones and tablets for the games that are not VR.",
     sectionTitle: "Compatibility, game by game",
-    onlineNote: "Online games may not work for now, and some may not even start.",
-    onlineNoteMore: "GamePort focuses on single player and saves. The online part of a game, its multiplayer and its servers, often does not work on these devices yet, and a game that needs its servers can refuse to launch.",
-    multiNote: "The multiplayer part of this game may not work, and the game may not even start.",
+    onlineNote: "Multiplayer works in several games.",
+    onlineNoteMore: "A few rare games will not work, because of an APK protection or another block. The reports below say what players found for each game.",
     deviceLabel: "Device", compatLabel: "Reports",
     types: { demo: "Demo", beta: "Beta", application: "App" },
     latestTitle: "Latest additions", latestLead: "The latest Android versions the catalog has seen.", prev: "Previous", next: "Next",
     adultLabel: "Adult content", adult: { all: "Adult: all", only: "Adult only", hidden: "No adult" },
-    demoOf: "Demo of", hasDemo: "A demo is available", tryDemo: "Try the demo",
+    demo: "Demo", fullGameGp: "Full game on GamePort", fullGameSteam: "Full game on Steam", demoGp: "Demo on GamePort", demoSteam: "Demo on Steam", demoOf: "Demo of", hasDemo: "A demo is available", tryDemo: "Try the demo",
     search: "Search games", all: "All", vr: "VR", flat: "Flat",
     devices: { all: "All devices", quest: "Quest", pico: "Pico", phone: "Phone", tablet: "Tablet", other: "Other" },
     compat: { all: "Any report", works: "Works", issues: "Problems", none: "No report" },
@@ -34,12 +33,15 @@ const TEXTS = {
     levels: { works: "Works", offline: "Works offline only", mixed: "Mixed reports", fails: "Problems reported", incompatible: "Incompatible", none: "No report yet" },
     reports: "What players report", reportsNone: "No player has said anything about this game yet.",
     unreliable: "Few answers so far: the result may not be reliable.",
-    nums: (w, o, f) => `${w} works, ${o} offline only, ${f} problems`,
+    countNames: { works: "Works", offline: "Offline only", fails: "Does not work" },
     fixed: (day, version) => `Problem solved on ${day}${version ? ` in version ${version}` : ""}, counted as works`,
+    issuesTitle: "Problems reported by users:",
+    modelsTitle: "Detail by device", unknownModel: "Device not specified", moreModels: n => `${n} more`,
+    issueLabels: { no_image: "nothing shows", flat_window: "flat window instead of VR", closes: "closes by itself", stuck_loading: "stuck on loading", no_controls: "controls missing or wrong", no_sound: "no sound", no_online: "cannot play online", slow: "slow or stuttering", no_passthrough: "no passthrough", visual: "broken image or colors", other: "something else" },
     about: "About this game", rating: p => `${p}% of Steam reviews positive`, reviews: n => `${n.toLocaleString("en")} reviews`,
     release: "Released", developer: "Developer", frame: "Steam Frame", deck: "Steam Deck",
     verdicts: { verified: "verified", playable: "playable", unsupported: "unsupported", unknown: "unknown" },
-    steam: "Open on Steam", getApp: "Get GamePort", notYet: "The Android version is not published yet.",
+    steam: "Open on Steam", notYet: "The Android version is not published yet.",
     howTitle: "How to read this", how: "A game is said to work when three quarters of the players of the same kind of device could play it. With only a few answers (under 3), the result may not be reliable. Offline only means that most of them could play only without the network. Prices and installs are in the app.",
     notFound: "This game is not in the catalog.",
     foot: "GamePort is an independent community project, not made by or affiliated with Valve, Meta or Pico. The list comes from a public catalog and is refreshed every few hours.",
@@ -59,14 +61,13 @@ const TEXTS = {
     ],
     worksOn: "Meta Quest, Pico, les autres casques Android qui font tourner des jeux OpenXR, et les téléphones et tablettes Android pour les jeux qui ne sont pas en VR.",
     sectionTitle: "La compatibilité, jeu par jeu",
-    onlineNote: "Les jeux en ligne peuvent ne pas fonctionner pour le moment, et certains peuvent même ne pas démarrer.",
-    onlineNoteMore: "GamePort se concentre sur le jeu solo et les sauvegardes. La partie en ligne d'un jeu, son multijoueur et ses serveurs, ne fonctionne souvent pas encore sur ces appareils, et un jeu qui a besoin de ses serveurs peut refuser de se lancer.",
-    multiNote: "La partie multijoueur de ce jeu peut ne pas fonctionner, et le jeu peut même ne pas démarrer.",
+    onlineNote: "Le multijoueur fonctionne dans plusieurs jeux.",
+    onlineNoteMore: "Quelques rares jeux ne fonctionneront pas, à cause d'une protection de l'APK ou d'un autre blocage. Les rapports indiquent ce que les joueurs ont constaté pour chaque jeu.",
     deviceLabel: "Appareil", compatLabel: "Rapports",
     types: { demo: "Démo", beta: "Bêta", application: "Appli" },
     latestTitle: "Derniers ajouts", latestLead: "Les dernières versions Android vues par le catalogue.", prev: "Précédent", next: "Suivant",
     adultLabel: "Contenu pour adultes", adult: { all: "Tous publics et adultes", only: "Réservé aux adultes", hidden: "Tous publics" },
-    demoOf: "Démo de", hasDemo: "Une démo est disponible", tryDemo: "Essayer la démo",
+    demo: "Démo", fullGameGp: "Jeu complet sur GamePort", fullGameSteam: "Jeu complet sur Steam", demoGp: "Démo sur GamePort", demoSteam: "Démo sur Steam", demoOf: "Démo de", hasDemo: "Une démo est disponible", tryDemo: "Essayer la démo",
     search: "Rechercher un jeu", all: "Tous", vr: "VR", flat: "Plat",
     devices: { all: "Tous les appareils", quest: "Quest", pico: "Pico", phone: "Téléphone", tablet: "Tablette", other: "Autre" },
     compat: { all: "Tout rapport", works: "Fonctionne", issues: "Problèmes", none: "Sans rapport" },
@@ -76,12 +77,15 @@ const TEXTS = {
     levels: { works: "Fonctionne", offline: "Fonctionne hors ligne seulement", mixed: "Avis partagés", fails: "Problèmes signalés", incompatible: "Incompatible", none: "Pas encore de rapport" },
     reports: "Ce que rapportent les joueurs", reportsNone: "Aucun joueur n'a encore donné son avis sur ce jeu.",
     unreliable: "Peu de réponses pour l'instant : le résultat peut ne pas être fiable.",
-    nums: (w, o, f) => `${w} fonctionne, ${o} hors ligne seulement, ${f} problèmes`,
+    countNames: { works: "Fonctionne", offline: "Hors ligne seulement", fails: "Ne fonctionne pas" },
     fixed: (day, version) => `Problème réglé le ${day}${version ? ` dans la version ${version}` : ""}, compté comme fonctionnel`,
+    issuesTitle: "Problèmes remontés par les utilisateurs :",
+    modelsTitle: "Détail par appareil", unknownModel: "Appareil non précisé", moreModels: n => `${n} autres`,
+    issueLabels: { no_image: "rien ne s'affiche", flat_window: "fenêtre plate au lieu de la VR", closes: "se ferme tout seul", stuck_loading: "bloqué au chargement", no_controls: "commandes absentes ou fausses", no_sound: "pas de son", no_online: "impossible de jouer en ligne", slow: "lent ou saccadé", no_passthrough: "pas de transparence", visual: "image cassée ou couleurs fausses", other: "autre chose" },
     about: "À propos de ce jeu", rating: p => `${p} % d'avis positifs sur Steam`, reviews: n => `${n.toLocaleString("fr")} avis`,
     release: "Sortie", developer: "Développeur", frame: "Steam Frame", deck: "Steam Deck",
     verdicts: { verified: "vérifié", playable: "jouable", unsupported: "non pris en charge", unknown: "inconnu" },
-    steam: "Ouvrir sur Steam", getApp: "Obtenir GamePort", notYet: "La version Android n'est pas encore publiée.",
+    steam: "Ouvrir sur Steam", notYet: "La version Android n'est pas encore publiée.",
     howTitle: "Comment lire ces rapports", how: "Un jeu est dit fonctionnel quand les trois quarts des joueurs du même type d'appareil ont pu y jouer. Avec seulement quelques réponses (moins de 3), le résultat peut ne pas être fiable. Hors ligne seulement veut dire que la plupart n'ont pu jouer que sans le réseau. Les prix et les installations sont dans l'application.",
     notFound: "Ce jeu n'est pas dans le catalogue.",
     foot: "GamePort est un projet communautaire indépendant, non conçu par Valve, Meta ou Pico ni affilié à eux. La liste vient d'un catalogue public et se met à jour toutes les quelques heures.",
@@ -104,6 +108,12 @@ const ICONS = {
   exclaim: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 6.5v7"/><path d="M12 17.4h.01"/></svg>',
   none: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9" stroke-dasharray="3 3"/></svg>',
 };
+
+const STEAMDB_ICON = '<svg class="st" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg>';
+
+const GAMEPORT_ICON = '<svg class="gp" viewBox="96 96 320 320" fill="none" stroke="currentColor" aria-hidden="true"><path d="M348.2,173 A124,124 0 1 0 380,256 L272,256" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"/><path transform="translate(-12)" d="M206,214 L206,298 Q206,312 218,305 L284,263 Q294,256 284,249 L218,207 Q206,200 206,214 Z" fill="currentColor" stroke-width="8" stroke-linejoin="round"/></svg>';
+
+const STEAM_ICON = '<svg class="st" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.004.105.004.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 11.999-5.373 11.999-12S18.605 0 11.979 0zM7.54 18.21l-1.473-.61c.262.543.714.999 1.314 1.25 1.297.539 2.793-.076 3.332-1.375.263-.63.264-1.319.005-1.949s-.75-1.121-1.377-1.383c-.624-.26-1.29-.249-1.878-.03l1.523.63c.956.4 1.409 1.5 1.009 2.455-.397.957-1.497 1.41-2.454 1.012H7.54zm11.415-9.303c0-1.662-1.353-3.015-3.015-3.015-1.665 0-3.015 1.353-3.015 3.015 0 1.665 1.35 3.015 3.015 3.015 1.663 0 3.015-1.35 3.015-3.015zm-5.273-.005c0-1.252 1.013-2.266 2.265-2.266 1.249 0 2.266 1.014 2.266 2.266 0 1.251-1.017 2.265-2.266 2.265-1.253 0-2.265-1.014-2.265-2.265z"/></svg>';
 
 const DISCORD_ICON = '<svg class="dc" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>';
 
@@ -131,6 +141,42 @@ function verdict(counts) {
   else if (share <= FAILS_SHARE) level = "fails";
   else level = "mixed";
   return { level, total, unreliable: total < MIN_PLAYERS, ...counts };
+}
+
+/** What players ticked as going wrong, most reported first: for the game, or for one kind of device. */
+function issuesFor(appId, device) {
+  const game = state.summary.get(appId);
+  const counts = device === "all" ? game?.issues : game?.devices?.[device]?.issues;
+  return Object.entries(counts ?? {}).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+}
+
+/** The devices that answered for one kind of device: their name (or the raw model), their counts and the problems ticked, the most answers first. */
+function modelsFor(appId, device) {
+  const kind = state.summary.get(appId)?.devices?.[device];
+  const found = new Map();
+  for (const [model, c] of Object.entries(kind?.models ?? {})) {
+    const label = c.name ?? model;
+    const entry = found.get(label) ?? { label, works: 0, offlineOnly: 0, fails: 0, issues: {} };
+    entry.works += c.works; entry.offlineOnly += c.offlineOnly; entry.fails += c.fails;
+    for (const [code, n] of Object.entries(c.issues ?? {})) entry.issues[code] = (entry.issues[code] ?? 0) + n;
+    found.set(label, entry);
+  }
+  const total = e => e.works + e.offlineOnly + e.fails;
+  const rows = [...found.values()].sort((a, b) => total(b) - total(a) || a.label.localeCompare(b.label));
+  // The answers that came without a model (an older version of the app) are what is left of the totals of this kind of device: shown as one line, so the lines add up.
+  if (kind) {
+    const left = { label: t().unknownModel, works: kind.works - rows.reduce((n, e) => n + e.works, 0), offlineOnly: kind.offlineOnly - rows.reduce((n, e) => n + e.offlineOnly, 0), fails: kind.fails - rows.reduce((n, e) => n + e.fails, 0), issues: {} };
+    if (rows.length && total(left) > 0) rows.push(left);
+    // The problems the totals have and the lines do not say yet: only an answer that is not "it works" carries any, so they can belong to the one line that has such answers, and to no other. With several, nothing is guessed.
+    const owners = rows.filter(e => e.fails + e.offlineOnly > 0);
+    if (owners.length === 1) {
+      for (const [code, n] of Object.entries(kind.issues ?? {})) {
+        const rest = n - rows.reduce((m, e) => m + (e.issues[code] ?? 0), 0);
+        if (rest > 0) owners[0].issues[code] = (owners[0].issues[code] ?? 0) + rest;
+      }
+    }
+  }
+  return rows;
 }
 
 function countsFor(appId, device) {
@@ -333,16 +379,23 @@ function renderGame(id) {
   // A demo of this game (an app of the catalog whose parent it is), and, on a demo, the game it belongs to.
   const demos = state.games.filter(d => d.parent === g.appid && d.type === "demo");
   const parent = g.parent ? state.byId.get(g.parent) : null;
-  const related = [
-    ...demos.map(d => `<a class="btn" href="#/g/${d.appid}">${esc(x.tryDemo)} · ${esc(d.name)}</a>`),
-    parent ? `<a class="btn" href="#/g/${parent.appid}">${esc(x.demoOf)} ${esc(parent.name)}</a>` : "",
-  ].join("");
+  // The demo and the full game, each on GamePort (when the catalog has it, which it only does for an app with an Android build) and on Steam (always).
+  const steamBtn = (id, label) => `<a class="btn steam" href="https://store.steampowered.com/app/${id}">${STEAM_ICON}${esc(label)}</a>`;
+  const gameportBtn = (id, label) => `<a class="btn" href="#/g/${id}">${GAMEPORT_ICON}${esc(label)}</a>`;
+  const steamLinks = [...demos.map(d => steamBtn(d.appid, x.demoSteam)), ...(g.parent ? [steamBtn(g.parent, x.fullGameSteam)] : [])].join("");
+  const gameportLinks = [...demos.map(d => gameportBtn(d.appid, x.demoGp)), ...(parent ? [gameportBtn(parent.appid, x.fullGameGp)] : [])].join("");
   const blocked = state.incompatible.get(g.appid);
   const why = blocked ? state.reasons[blocked.reason] : null;
   const blockedNote = blocked && why
     ? `<p class="warn inline lv-incompatible"><span class="warn-mark" aria-hidden="true">${ICONS.fails}</span><span><strong>${esc(x.levels.incompatible)}</strong>${state.lang === "fr" ? " : " : ": "}${esc(why.title[state.lang] ?? why.title.en)}${state.lang === "fr" ? " : " : ": "}${esc(why.text[state.lang] ?? why.text.en)}</span></p>`
     : "";
+  // What players report and the devices that answered are shown once, under each kind of device, not again under "all devices"; the doubt about few answers under "all devices" when there are several kinds.
+  const MAX_MODELS_SHOWN = 30;
+  const kindsAnswered = DEVICES.filter(d => d !== "all" && countsFor(g.appid, d)).length;
+  // The totals for all devices are not a card of their own: each kind of device has its own, and with several the overall verdict sits in the title of the section.
+  const overall = kindsAnswered >= 2 ? verdict(countsFor(g.appid, "all")) : null;
   const rows = DEVICES.map(d => {
+    if (d === "all") return null;
     const c = countsFor(g.appid, d);
     if (!c) return null;
     const total = c.works + c.offlineOnly + c.fails;
@@ -351,16 +404,33 @@ function renderGame(id) {
     const level = v ? v.level : "none";
     const fixes = (state.summary.get(g.appid)?.fixes ?? []).filter(f => d === "all" || f.device === d);
     const fixedNote = fixes.map(f => `<span class="nums">${esc(x.fixed(f.day, f.version))}</span>`).join("");
-    return `<div class="row"><span class="who">${esc(x.devices[d])}</span>
+    const reported = d === "all" ? [] : issuesFor(g.appid, d);
+    const issuesNote = reported.length
+      ? `<div class="issues"><div class="issues-title">${esc(x.issuesTitle)}</div><div class="issues-list">${reported.map(([code, n]) => `<span class="issue">${esc(x.issueLabels[code] ?? code)}${n > 1 ? `<b>${n}</b>` : ""}</span>`).join("")}</div></div>`
+      : "";
+    // One line per device that answered, folded: what each said and the problems it ticked.
+    const answered = modelsFor(g.appid, d);
+    const shownModels = answered.slice(0, MAX_MODELS_SHOWN);
+    const modelRow = e => {
+      const mv = verdict({ works: e.works, offlineOnly: e.offlineOnly, fails: e.fails });
+      const level = mv ? mv.level : "none";
+      const codes = Object.entries(e.issues).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+      return `<div class="mrow"><span class="lvl mico lv-${level}" title="${esc(x.levels[level])}" role="img" aria-label="${esc(x.levels[level])}">${ICONS[level]}</span><span class="mname">${esc(e.label)}</span>${codes.length ? `<span class="issues-list">${codes.map(([code, n]) => `<span class="issue">${esc(x.issueLabels[code] ?? code)}${n > 1 ? `<b>${n}</b>` : ""}</span>`).join("")}</span>` : ""}</div>`;
+    };
+    const models = answered.length
+      ? `<details class="by-model"><summary>${esc(x.modelsTitle)} (${answered.length})</summary>${shownModels.map(modelRow).join("")}${answered.length > shownModels.length ? `<div class="mmore">${esc(x.moreModels(answered.length - shownModels.length))}</div>` : ""}</details>`
+      : "";
+    return `<div class="row st-${level}"><span class="who">${esc(x.devices[d])}</span>
       <span class="lvl lv-${level}">${ICONS[level]}${esc(x.levels[level])}</span>
-      <span class="nums">${esc(x.nums(c.works, c.offlineOnly, c.fails))}</span>
+      <span class="counts">${[["works", c.works], ["offline", c.offlineOnly], ["fails", c.fails]].filter(([, n]) => n).map(([k, n]) => `<span class="tally c-${k}"><i></i>${esc(x.countNames[k])} <b>${n}</b></span>`).join("")}</span>
       ${fixedNote}
-      ${v && v.unreliable ? `<span class="warn"><span class="warn-mark" aria-hidden="true">${ICONS.exclaim}</span>${esc(x.unreliable)}</span>` : ""}</div>`;
+      ${issuesNote}
+      ${models}
+      ${v && v.unreliable && kindsAnswered < 2 ? `<span class="warn"><span class="warn-mark" aria-hidden="true">${ICONS.exclaim}</span>${esc(x.unreliable)}</span>` : ""}</div>`;
   }).filter(Boolean);
-  // "All devices" says nothing more than the only kind of device that answered.
-  if (rows.length === 2 && rows[0].includes(`>${esc(x.devices.all)}<`)) rows.shift();
   const verdictLabel = k => x.verdicts[k] ?? k;
   const pills = [
+    g.type === "demo" ? x.demo : null,
     g.vr ? "VR" : x.flat,
     g.reviewPercent != null ? x.rating(g.reviewPercent) : null,
     g.reviewCount ? x.reviews(g.reviewCount) : null,
@@ -371,23 +441,26 @@ function renderGame(id) {
   view.innerHTML = `
     <a class="back" href="#/">← ${esc(x.back)}</a>
     <section class="game-head" style="${art ? `background-image:url('${esc(art)}')` : ""}">
+      <div class="head-actions">
+        <div class="grp">${gameportLinks}</div>
+        <div class="grp">
+        ${g.store ? `<a class="btn steam" href="${esc(g.store)}">${STEAM_ICON}${esc(x.steam)}</a>` : ""}
+        <a class="btn" href="https://steamdb.info/app/${g.appid}/">${STEAMDB_ICON}SteamDB</a>
+        ${steamLinks}
+        </div>
+      </div>
       <div><h1>${esc(g.name)}</h1>
         <div class="meta">${g.developer?.length ? `<span>${esc(x.developer)}: ${esc(g.developer.join(", "))}</span>` : ""}${g.release ? `<span>${esc(x.release)}: ${esc(formatDay(g.release))}</span>` : ""}</div>
         <div class="pills">${pills.map(p => `<span class="pill">${esc(p)}</span>`).join("")}</div></div>
     </section>
-    <div class="cols">
-      <section class="panel"><h2>${esc(x.reports)}</h2>
+    <section class="panel how"><h2>${esc(x.howTitle)}</h2><p>${esc(x.how)}</p></section>
+    <div class="cols one">
+      <section class="panel"><h2>${esc(x.reports)}${overall ? ` <span class="lvl lv-${overall.level}">${ICONS[overall.level]}${esc(x.levels[overall.level])}</span>` : ""}</h2>
+        ${overall && overall.unreliable ? `<p class="warn inline"><span class="warn-mark" aria-hidden="true">${ICONS.exclaim}</span>${esc(x.unreliable)}</p>` : ""}
         ${blockedNote}
-        ${(g.modes || []).some(m => m === "multi" || m === "coop") ? `<p class="warn inline"><span class="warn-mark" aria-hidden="true">${ICONS.exclaim}</span>${esc(x.multiNote)}</p>` : ""}
         ${rows.length ? `<div class="rows">${rows.join("")}</div>` : `<p>${esc(x.reportsNone)}</p>`}
         ${g.installable ? "" : `<p>${esc(x.notYet)}</p>`}
       </section>
-      <section class="panel"><h2>${esc(x.howTitle)}</h2><p>${esc(x.how)}</p>
-        <div class="actions">
-          ${g.store ? `<a class="btn" href="${esc(g.store)}">${esc(x.steam)}</a>` : ""}
-          ${related}
-          <a class="btn fill" href="https://github.com/gameport-project/gameport-app/releases/latest">${esc(x.getApp)}</a>
-        </div></section>
     </div>`;
   window.scrollTo(0, 0);
 }

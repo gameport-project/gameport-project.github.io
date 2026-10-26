@@ -114,12 +114,24 @@ main { max-width: 1240px; margin: 0 auto; padding: 28px 24px 56px; }
 }
 .game-head::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(13, 16, 22, .1), rgba(13, 16, 22, .92)); }
 .game-head > div { position: relative; padding: 24px; }
+.game-head > .head-actions { padding: 0; position: absolute; top: 16px; right: 16px; left: 16px; z-index: 1; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+.head-actions .grp { display: flex; flex-wrap: wrap; gap: 8px; }
+.head-actions .grp:last-child { justify-content: flex-end; margin-left: auto; }
+.head-actions .btn { background: rgba(13, 16, 22, .6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-color: rgba(255, 255, 255, .22); color: #fff; text-decoration: none; }
+.head-actions .btn:hover { background: rgba(13, 16, 22, .8); }
+.head-actions .btn.steam, .head-actions a.steam { background: linear-gradient(90deg, #06bfff, #2d73ff); border-color: transparent; }
+.head-actions .btn.steam:hover, .head-actions a.steam:hover { background: linear-gradient(90deg, #3cccff, #4d88ff); }
+.head-actions .st { width: 18px; height: 18px; }
 .game-head h1 { margin: 0 0 6px; font-size: clamp(24px, 4vw, 38px); line-height: 1.15; letter-spacing: -.02em; }
 .meta { display: flex; flex-wrap: wrap; gap: 6px 12px; color: var(--muted); font-size: 14px; }
 .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .pill { padding: 4px 12px; border-radius: 999px; font-size: 13px; background: rgba(255, 255, 255, .08); border: 1px solid var(--line); }
 .cols { display: grid; gap: 20px; margin-top: 20px; grid-template-columns: 1fr; }
 @media (min-width: 860px) { .cols { grid-template-columns: 1.4fr 1fr; } }
+.cols.one { grid-template-columns: 1fr; }
+.panel.how { margin-top: 20px; }
+.panel.how p { margin: 0 0 12px; }
+@media (min-width: 860px) { .panel.how { display: grid; grid-template-columns: 1fr auto; column-gap: 24px; align-items: center; } .panel.how h2 { grid-column: 1 / -1; } .panel.how p { margin: 0; } .panel.how .actions { margin-top: 0; } }
 .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; }
 .panel h2 { margin: 0 0 12px; font-size: 17px; }
 .panel p { margin: 0 0 10px; color: var(--muted); }
@@ -132,6 +144,14 @@ main { max-width: 1240px; margin: 0 auto; padding: 28px 24px 56px; }
 .row .lvl { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
 .row .lvl svg { width: 18px; height: 18px; }
 .row .nums { grid-column: 1 / -1; color: var(--muted); font-size: 13px; }
+.row .issues { grid-column: 1 / -1; margin-top: 2px; }
+.issues-title { color: var(--muted); font-size: 13px; margin-bottom: 6px; }
+.issues-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.issue {
+  display: inline-flex; align-items: center; gap: 8px; padding: 3px 11px; border-radius: 999px; font-size: 13px; white-space: nowrap;
+  background: rgba(239, 107, 107, .10); border: 1px solid rgba(239, 107, 107, .30);
+}
+.issue b { font-weight: 700; color: var(--fails); }
 .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
 .btn {
   display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--line);
@@ -300,3 +320,40 @@ img.mark { display: block; width: 34px; height: 34px; border-radius: 9px; backgr
 .card .art.wide img { object-fit: contain; }
 .card .art.wide .tag, .card .art.wide .dot { z-index: 2; }
 .panel p.warn.inline.lv-incompatible { color: var(--fails); }
+
+.head-actions .gp { width: 20px; height: 20px; }
+
+.panel h2 .lvl { margin-left: 12px; font-size: 15px; vertical-align: middle; }
+.panel h2 .lvl { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+.panel h2 .lvl svg { width: 18px; height: 18px; }
+.row .by-model { grid-column: 1 / -1; margin-top: 4px; }
+.by-model > summary {
+  display: flex; align-items: center; justify-content: space-between; cursor: pointer; list-style: none; padding: 10px 2px 2px;
+  border-top: 1px solid var(--line); color: var(--text); font-size: 14px; font-weight: 600;
+}
+.by-model > summary:hover { color: #fff; }
+.by-model > summary::after { content: ""; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); transition: transform .15s; }
+.by-model[open] > summary::after { transform: rotate(-135deg) translateY(2px); }
+.by-model > summary::-webkit-details-marker { display: none; }
+.mrow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 9px 2px; border-top: 1px solid var(--line); }
+.mrow:first-of-type { margin-top: 6px; }
+.mname { font-weight: 600; font-size: 14px; min-width: 150px; }
+.mrow .issue { font-size: 12px; padding: 2px 9px; }
+.mrow .issues-list { gap: 5px; }
+.mico { display: inline-flex; flex: none; }
+.mico svg { width: 20px; height: 20px; }
+.mmore { color: var(--muted); font-size: 13px; padding-top: 8px; }
+.row .counts { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; align-content: flex-start; align-self: start; gap: 8px; line-height: 1; }
+.tally { display: inline-flex; align-items: center; gap: 7px; padding: 3px 11px; border-radius: 999px; font-size: 13px; background: rgba(255, 255, 255, .06); border: 1px solid var(--line); color: var(--text); }
+.tally i { width: 8px; height: 8px; border-radius: 50%; }
+.tally b { font-weight: 700; }
+.tally.c-works i { background: #4cc38a; } .tally.c-offline i { background: #f0b24a; } .tally.c-fails i { background: #ef6b6b; }
+
+/* The state of a card: its colour, shown as a bar on the left. */
+.row.st-works { --st: #4cc38a; } .row.st-offline, .row.st-mixed { --st: #f0b24a; } .row.st-fails { --st: #ef6b6b; } .row { --st: var(--line); border-left: 4px solid var(--st); }
+.row .who { grid-column: 1; grid-row: 1; } .row .lvl { grid-column: 2; grid-row: 1; justify-self: end; }
+.row .counts, .row .issues, .row .by-model, .row .warn, .row .nums { grid-column: 1 / -1; }
+/* The problems as neutral chips, under a subtitle. */
+.issue { background: rgba(255, 255, 255, .06); border: 1px solid var(--line); }
+.issue b { color: var(--text); }
+.row .issues-title { margin: 6px 0 8px; color: #fff; font-size: 16px; font-weight: 700; }
