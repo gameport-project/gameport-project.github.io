@@ -78,7 +78,13 @@ main { max-width: 1240px; margin: 0 auto; padding: 28px 24px 56px; }
   background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer;
 }
 .sort select option { background: var(--bg-2); }
-.count { color: var(--muted); font-size: 14px; margin: 0 0 14px; }
+.count { color: var(--muted); font-size: 14px; margin: 0 0 14px; display: flex; flex-direction: column-reverse; align-items: stretch; gap: 8px; }
+.count-text { flex: none; white-space: nowrap; }
+/* The verdict pills take the whole width on one line and slide sideways when they do not all fit; the fade at the right edge says there is more. The count is under them. */
+.verdict-pills { display: flex; gap: 8px; flex: 1 1 auto; min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); padding-right: 28px; }
+.verdict-pills::-webkit-scrollbar { display: none; }
+.verdict-pills .tally { flex: none; }
 
 .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
 .card {
@@ -104,6 +110,10 @@ main { max-width: 1240px; margin: 0 auto; padding: 28px 24px 56px; }
 .lv-works { color: var(--works); } .lv-offline, .lv-mixed { color: var(--mixed); } .lv-fails, .lv-incompatible { color: var(--fails); } .lv-none { color: var(--none); }
 
 .empty { text-align: center; color: var(--muted); padding: 56px 0; }
+.compat-empty { max-width: 560px; margin: 0 auto; padding: 48px 0; text-align: center; color: var(--muted); }
+.compat-empty strong { display: block; font-size: 17px; color: var(--text); margin-bottom: 8px; }
+.compat-empty p { margin: 8px 0; line-height: 1.5; }
+.compat-empty .actions { justify-content: center; }
 
 /* the page of a game */
 .back { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); margin-bottom: 16px; }
@@ -160,6 +170,7 @@ main { max-width: 1240px; margin: 0 auto; padding: 28px 24px 56px; }
 .btn:hover { background: rgba(255, 255, 255, .13); }
 .btn.fill { background: #fff; color: #11151c; border-color: transparent; }
 .btn.fill:hover { background: #dfe3ea; }
+.btn .gp { width: 20px; height: 20px; flex: none; }
 
 .foot { max-width: 1240px; margin: 0 auto; padding: 0 24px 48px; color: var(--muted); font-size: 13px; }
 
@@ -348,6 +359,14 @@ img.mark { display: block; width: 34px; height: 34px; border-radius: 9px; backgr
 .tally i { width: 8px; height: 8px; border-radius: 50%; }
 .tally b { font-weight: 700; }
 .tally.c-works i { background: #4cc38a; } .tally.c-offline i { background: #f0b24a; } .tally.c-fails i { background: #ef6b6b; }
+/* On the counter line a pill is a button: it picks the verdict among the games. */
+button.tally { font: inherit; font-size: 13px; cursor: pointer; line-height: 1.2; white-space: nowrap; }
+button.tally:hover { background: rgba(255, 255, 255, .11); }
+button.tally[aria-pressed="true"] { background: rgba(255, 255, 255, .17); }
+button.tally.c-works[aria-pressed="true"] { border-color: #4cc38a; } button.tally.c-offline[aria-pressed="true"], button.tally.c-mixed[aria-pressed="true"] { border-color: #f0b24a; }
+button.tally.c-fails[aria-pressed="true"], button.tally.c-incompatible[aria-pressed="true"] { border-color: #ef6b6b; } button.tally.c-none[aria-pressed="true"] { border-color: var(--none); }
+button.tally:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+.tally.c-mixed i { background: #f0b24a; } .tally.c-incompatible i { background: #ef6b6b; } .tally.c-none i { background: var(--none); }
 
 /* The state of a card: its colour, shown as a bar on the left. */
 .row.st-works { --st: #4cc38a; } .row.st-offline, .row.st-mixed { --st: #f0b24a; } .row.st-fails { --st: #ef6b6b; } .row { --st: var(--line); border-left: 4px solid var(--st); }

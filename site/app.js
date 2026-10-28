@@ -3,7 +3,7 @@
 /* The texts, in the two languages. Everything is written for any device and in a general form, without speaking to the reader. */
 const TEXTS = {
   en: {
-    download: "Download", title: "Android versions of Steam games",
+    title: "Android versions of Steam games",
     lead: "Every Steam game that has an Android version, and what players report for each kind of device. The reports come from the players of GamePort, one answer for each player and game.",
     pageTitle: "GamePort: play your Steam games on Quest, Pico and Android",
     pageDescription: "GamePort is a free, open-source app that brings the Android versions of your Steam games to Meta Quest, Pico, other standalone VR headsets, Android phones and tablets. See which Steam games run on which device.",
@@ -28,8 +28,15 @@ const TEXTS = {
     devices: { all: "All devices", quest: "Quest", pico: "Pico", phone: "Phone", tablet: "Tablet", other: "Other" },
     compat: { all: "Any report", works: "Works", issues: "Problems", none: "No report" },
     sort: "Sort", sorts: { reports: "Reports first", name: "Name", rating: "Rating", recent: "Newest" },
-    shown: (n, total) => (n === total ? `${total} games` : `${n} of ${total} games`),
+    shown: (n, total) => (n === total ? `${total} game${total === 1 ? "" : "s"}` : `${n} of ${total} game${total === 1 ? "" : "s"}`),
     empty: "No game matches.", soon: "Soon", back: "All games",
+    compatEmpty: {
+      title: "No report yet for this device",
+      text: "Compatibility comes from the reports that players send after a game. An empty list does not mean that the games are incompatible, only that none has been reported yet.",
+      hidden: n => `${n} game${n === 1 ? "" : "s"} with no report for this device ${n === 1 ? "is" : "are"} not listed.`,
+      allReported: "Every game with these filters already has a report, but none of the kind asked for.",
+      showNone: "Show the games with no report", remove: "Remove the filter",
+    },
     levels: { works: "Works", offline: "Works offline only", mixed: "Mixed reports", fails: "Problems reported", incompatible: "Incompatible", none: "No report yet" },
     reports: "What players report", reportsNone: "No player has said anything about this game yet.",
     unreliable: "Few answers so far: the result may not be reliable.",
@@ -47,7 +54,7 @@ const TEXTS = {
     foot: "GamePort is an independent community project, not made by or affiliated with Valve, Meta or Pico. The list comes from a public catalog and is refreshed every few hours.",
   },
   fr: {
-    download: "Télécharger", title: "Les versions Android des jeux Steam",
+    title: "Les versions Android des jeux Steam",
     lead: "Tous les jeux Steam qui ont une version Android, et ce que les joueurs rapportent pour chaque type d'appareil. Les rapports viennent des joueurs de GamePort, une réponse par joueur et par jeu.",
     pageTitle: "GamePort : jouer à ses jeux Steam sur Quest, Pico et Android",
     pageDescription: "GamePort est une application gratuite et open source qui apporte les versions Android de vos jeux Steam sur Meta Quest, Pico, d'autres casques VR autonomes, téléphones et tablettes Android. Voir quels jeux Steam fonctionnent sur quel appareil.",
@@ -72,8 +79,15 @@ const TEXTS = {
     devices: { all: "Tous les appareils", quest: "Quest", pico: "Pico", phone: "Téléphone", tablet: "Tablette", other: "Autre" },
     compat: { all: "Tout rapport", works: "Fonctionne", issues: "Problèmes", none: "Sans rapport" },
     sort: "Tri", sorts: { reports: "Rapports d'abord", name: "Nom", rating: "Note", recent: "Récents" },
-    shown: (n, total) => (n === total ? `${total} jeux` : `${n} jeux sur ${total}`),
+    shown: (n, total) => (n === total ? `${total} jeu${total > 1 ? "x" : ""}` : `${n} jeu${n > 1 ? "x" : ""} sur ${total}`),
     empty: "Aucun jeu ne correspond.", soon: "Bientôt", back: "Tous les jeux",
+    compatEmpty: {
+      title: "Aucun retour pour cet appareil",
+      text: "La compatibilité repose sur les retours que les joueurs envoient après une partie. Une liste vide ne veut pas dire que les jeux sont incompatibles, seulement qu'aucun n'a encore reçu de retour.",
+      hidden: n => `${n} jeu${n > 1 ? "x" : ""} sans retour pour cet appareil ${n > 1 ? "ne sont pas listés" : "n'est pas listé"}.`,
+      allReported: "Tous les jeux de ces filtres ont déjà un retour, mais aucun du type demandé.",
+      showNone: "Afficher les jeux sans retour", remove: "Retirer le filtre",
+    },
     levels: { works: "Fonctionne", offline: "Fonctionne hors ligne seulement", mixed: "Avis partagés", fails: "Problèmes signalés", incompatible: "Incompatible", none: "Pas encore de rapport" },
     reports: "Ce que rapportent les joueurs", reportsNone: "Aucun joueur n'a encore donné son avis sur ce jeu.",
     unreliable: "Peu de réponses pour l'instant : le résultat peut ne pas être fiable.",
@@ -117,7 +131,7 @@ const STEAM_ICON = '<svg class="st" viewBox="0 0 24 24" fill="currentColor" aria
 
 const DISCORD_ICON = '<svg class="dc" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>';
 
-const state = { lang: "en", games: [], byId: new Map(), summary: new Map(), incompatible: new Map(), reasons: {}, type: "all", device: "all", compat: "all", adult: "all", sort: "reports", query: "" };
+const state = { lang: "en", games: [], byId: new Map(), summary: new Map(), incompatible: new Map(), reasons: {}, type: "all", device: "all", compat: "all", adult: "all", sort: "reports", query: "", level: null };
 
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const t = () => TEXTS[state.lang];
@@ -194,7 +208,8 @@ function standing(g, device) {
   return verdict(countsFor(g.appid, device));
 }
 
-function visible() {
+/* The games the filters keep, sorted. [withLevel] false leaves out the verdict picked among the pills, so they can keep counting what each one would show. */
+function visible(withLevel = true, withCompat = true) {
   const q = state.query.trim().toLowerCase();
   const list = state.games.filter(g => {
     if (q && !g.name.toLowerCase().includes(q)) return false;
@@ -203,9 +218,10 @@ function visible() {
     if (state.adult === "only" && !isAdult(g)) return false;
     if (state.adult === "hidden" && isAdult(g)) return false;
     const v = standing(g, state.device);
-    if (state.compat === "works" && !(v && (v.level === "works" || v.level === "offline"))) return false;
-    if (state.compat === "issues" && !(v && (v.level === "mixed" || v.level === "fails" || v.level === "incompatible"))) return false;
-    if (state.compat === "none" && v) return false;
+    if (withCompat && state.compat === "works" && !(v && (v.level === "works" || v.level === "offline"))) return false;
+    if (withCompat && state.compat === "issues" && !(v && (v.level === "mixed" || v.level === "fails" || v.level === "incompatible"))) return false;
+    if (withCompat && state.compat === "none" && v) return false;
+    if (withLevel && state.level && (v ? v.level : "none") !== state.level) return false;
     return true;
   });
   const byName = (a, b) => a.name.localeCompare(b.name, state.lang);
@@ -305,7 +321,7 @@ function renderList() {
         <h1>${esc(x.heroTitle)}</h1>
         <p>${esc(x.heroLead)}</p>
         <div class="actions">
-          <a class="btn fill" href="https://github.com/gameport-project/gameport-app/releases/latest">${esc(x.heroGet)}</a>
+          <a class="btn fill" href="https://github.com/gameport-project/gameport-app/releases/latest">${GAMEPORT_ICON}${esc(x.heroGet)}</a>
           <a class="btn" href="#games" data-jump>${esc(x.heroSee)}</a>
           <a class="btn discord-btn" href="https://discord.gg/yWXXAC2AKc">${DISCORD_ICON}${esc(x.heroDiscord)}</a>
         </div>
@@ -340,6 +356,12 @@ function renderList() {
   if (track) view.querySelectorAll(".arrows button").forEach(b => b.addEventListener("click", () => track.scrollBy({ left: Number(b.dataset.dir) * track.clientWidth * 0.85, behavior: "smooth" })));
   const q = document.getElementById("q");
   q.addEventListener("input", () => { state.query = q.value; paint(); });
+  document.getElementById("count").addEventListener("click", e => {
+    const pill = e.target.closest("button[data-level]");
+    if (!pill) return;
+    state.level = state.level === pill.dataset.level ? null : pill.dataset.level;
+    paint();
+  });
   document.getElementById("sort").addEventListener("change", e => { state.sort = e.target.value; paint(); });
   const sync = name => {
     view.querySelectorAll(`.group[data-group="${name}"] button`).forEach(o => o.setAttribute("aria-pressed", String(o.dataset.value === state[name])));
@@ -358,13 +380,74 @@ function renderList() {
     sync(el.dataset.pick);
     paint();
   }));
+  document.getElementById("grid").addEventListener("click", e => {
+    const b = e.target.closest("button[data-compat-action]");
+    if (!b) return;
+    state.compat = b.dataset.compatAction;
+    state.level = null;
+    sync("compat");
+    paint();
+  });
   paint();
+}
+
+/* The shown games by verdict, in the order of the grid: a pill of the colour of each verdict, with how many games have it. A pill filters the games on its
+   verdict, with the other filters kept, and the same pill again takes it off. The pills count what the other filters keep, so they do not change as one is picked. */
+const COUNT_ORDER = ["works", "offline", "mixed", "fails", "incompatible", "none"];
+
+/* The short names of the filters, so that the pills fit on one line: "Offline only" and "No report" rather than the long ones of the badges. */
+function pillName(level) {
+  const x = t();
+  if (level === "offline") return x.countNames.offline;
+  if (level === "none") return x.compat.none;
+  return x.levels[level];
+}
+
+function tallies(list) {
+  const levels = {};
+  for (const g of list) {
+    const v = standing(g, state.device);
+    const level = v ? v.level : "none";
+    levels[level] = (levels[level] || 0) + 1;
+  }
+  // The picked verdict stays, even when the other filters leave no game with it: it is how to take it off.
+  return COUNT_ORDER.filter(level => levels[level] || level === state.level)
+    .map(level => `<button type="button" class="tally c-${level}" data-level="${level}" aria-pressed="${state.level === level}"><i></i>${esc(pillName(level))} <b>${levels[level] || 0}</b></button>`).join("");
 }
 
 function paint() {
   const list = visible();
-  document.getElementById("count").textContent = t().shown(list.length, state.games.length);
-  document.getElementById("grid").innerHTML = list.length ? list.map(card).join("") : `<p class="empty">${esc(t().empty)}</p>`;
+  // The row of pills is drawn again at each filter: where it was slid to is kept, and the picked pill is brought back into view when it is not.
+  const before = document.querySelector("#count .verdict-pills");
+  const slid = before ? before.scrollLeft : 0;
+  document.getElementById("count").innerHTML = `<span class="count-text">${esc(t().shown(list.length, state.games.length))}</span><div class="verdict-pills">${tallies(visible(false))}</div>`;
+  const row = document.querySelector("#count .verdict-pills");
+  if (row) {
+    row.scrollLeft = slid;
+    const picked = row.querySelector('[aria-pressed="true"]');
+    if (picked) {
+      const p = picked.getBoundingClientRect(), r = row.getBoundingClientRect();
+      // The right edge fades out over 28 px: a pill under the fade is not seen.
+      if (p.left < r.left) row.scrollLeft -= r.left - p.left + 8;
+      else if (p.right > r.right - 36) row.scrollLeft += p.right - r.right + 44;
+    }
+  }
+  document.getElementById("grid").innerHTML = list.length ? list.map(card).join("") : emptyList();
+}
+
+/* What an empty list says. When a verdict or a compatibility choice is on, the games nobody reported on are left out, so an empty list does not mean that nothing works: the text says so,
+   with how many games were left out for want of a report, and the filter can be taken off from there. */
+const ICON_EYE = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12zM12 15a3 3 0 100-6 3 3 0 000 6z"/></svg>';
+const ICON_CLOSE = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>';
+function emptyList() {
+  const x = t();
+  const hidesUnreported = state.compat === "works" || state.compat === "issues" || (state.level && state.level !== "none");
+  if (!hidesUnreported) return `<p class="empty">${esc(x.empty)}</p>`;
+  const left = visible(false, false).filter(g => !standing(g, state.device)).length;
+  const c = x.compatEmpty;
+  const showNone = left ? `<button type="button" class="btn" data-compat-action="none">${ICON_EYE}${esc(c.showNone)}</button>` : "";
+  const remove = `<button type="button" class="btn" data-compat-action="all">${ICON_CLOSE}${esc(c.remove)}</button>`;
+  return `<div class="compat-empty">${left ? `<strong>${esc(c.title)}</strong><p>${esc(c.text)}</p><p>${esc(c.hidden(left))}</p>` : `<p>${esc(c.allReported)}</p>`}<div class="actions">${showNone}${remove}</div></div>`;
 }
 
 function renderGame(id) {
@@ -474,7 +557,6 @@ function route() {
 function applyLanguage() {
   const x = t();
   document.documentElement.lang = state.lang;
-  document.getElementById("link-download").textContent = x.download;
   const other = state.lang === "en" ? ["Français", "FR"] : ["English", "EN"];
   document.getElementById("lang").innerHTML = `<span class="long">${other[0]}</span><span class="short">${other[1]}</span>`;
   document.getElementById("foot-note").textContent = x.foot;
