@@ -46,7 +46,8 @@ const TEXTS = {
     reports: "What players report", reportsNone: "No player has said anything about this game yet.",
     unreliable: "Few answers so far: the result may not be reliable.",
     countNames: { works: "Works", offline: "Offline only", fails: "Does not work" },
-    fixed: (day, version) => `Problem solved on ${day}${version ? ` in version ${version}` : ""}, counted as works`,
+    fixed: (day, version) => version ? `Fixed in ${version}` : `Fixed on ${day}`,
+    turn: t => turnWords(t, `Broke in ${t.brokeIn}`, `Fixed in ${t.fixedIn}`, `still works in ${t.stillIn}`),
     issuesTitle: "Problems reported by users:",
     modelsTitle: "Detail by device", unknownModel: "Device not specified", moreModels: n => `${n} more`,
     issueLabels: { no_image: "nothing shows", flat_window: "flat window instead of VR", closes: "closes by itself", stuck_loading: "stuck on loading", no_controls: "controls missing or wrong", no_sound: "no sound", no_online: "cannot play online", slow: "slow or stuttering", no_passthrough: "no passthrough", visual: "broken image or colors", other: "something else" },
@@ -102,7 +103,8 @@ const TEXTS = {
     reports: "Ce que rapportent les joueurs", reportsNone: "Aucun joueur n'a encore donné son avis sur ce jeu.",
     unreliable: "Peu de réponses pour l'instant : le résultat peut ne pas être fiable.",
     countNames: { works: "Fonctionne", offline: "Hors ligne seulement", fails: "Ne fonctionne pas" },
-    fixed: (day, version) => `Problème réglé le ${day}${version ? ` dans la version ${version}` : ""}, compté comme fonctionnel`,
+    fixed: (day, version) => version ? `Réglé en ${version}` : `Réglé le ${day}`,
+    turn: t => turnWords(t, `Régression en ${t.brokeIn}`, `Réglé en ${t.fixedIn}`, `fonctionne encore en ${t.stillIn}`),
     issuesTitle: "Problèmes remontés par les utilisateurs :",
     modelsTitle: "Détail par appareil", unknownModel: "Appareil non précisé", moreModels: n => `${n} autres`,
     issueLabels: { no_image: "rien ne s'affiche", flat_window: "fenêtre plate au lieu de la VR", closes: "se ferme tout seul", stuck_loading: "bloqué au chargement", no_controls: "commandes absentes ou fausses", no_sound: "pas de son", no_online: "impossible de jouer en ligne", slow: "lent ou saccadé", no_passthrough: "pas de transparence", visual: "image cassée ou couleurs fausses", other: "autre chose" },
@@ -175,6 +177,22 @@ function issuesFor(appId, device) {
 }
 
 /** The devices that answered for one kind of device: their name (or the raw model), their counts and the problems ticked, the most answers first. */
+/** Versions of GamePort as numbers (0.9.10 after 0.9.9); a test build (0.9.2-alpha.3) before its release. Negative when [a] is older than [b]. */
+function compareVersions(a, b) {
+  const parse = v => { const m = /^(\d+)\.(\d+)\.(\d+)(?:-alpha\.(\d+))?$/.exec(String(v)); return m ? [+m[1], +m[2], +m[3], m[4] === undefined ? Infinity : +m[4]] : null; };
+  const x = parse(a), y = parse(b);
+  if (!x || !y) return 0;
+  for (let i = 0; i < 4; i++) if (x[i] !== y[i]) return x[i] < y[i] ? -1 : 1;
+  return 0;
+}
+
+/** The turn of a game for a kind of device in a few words: it broke (after the fix, or without one), or it was fixed and maybe still works in a newer version. */
+function turnWords(t, broke, fixed, still) {
+  if (t.brokeIn && (!t.fixedIn || compareVersions(t.brokeIn, t.fixedIn) > 0)) return broke;
+  if (!t.fixedIn) return "";
+  return t.stillIn ? `${fixed} \u00b7 ${still}` : fixed;
+}
+
 function modelsFor(appId, device) {
   const kind = state.summary.get(appId)?.devices?.[device];
   const found = new Map();
@@ -514,7 +532,12 @@ function renderGame(id) {
     const v = verdict(c);
     const level = v ? v.level : "none";
     const fixes = (state.summary.get(g.appid)?.fixes ?? []).filter(f => d === "all" || f.device === d);
-    const fixedNote = fixes.map(f => `<span class="nums">${esc(x.fixed(f.day, f.version))}</span>`).join("");
+    // What the history of the answers says (a player who did not get it to work and then did, in which version): it replaces the day the developer marked it as solved.
+    const turn = state.summary.get(g.appid)?.devices?.[d]?.turn;
+    const turnText = turn ? x.turn(turn) : "";
+    const fixedNote = turnText
+      ? `<span class="nums">${esc(turnText)}</span>`
+      : fixes.map(f => `<span class="nums">${esc(x.fixed(f.day, f.version))}</span>`).join("");
     const reported = d === "all" ? [] : issuesFor(g.appid, d);
     const issuesNote = reported.length
       ? `<div class="issues"><div class="issues-title">${esc(x.issuesTitle)}</div><div class="issues-list">${reported.map(([code, n]) => `<span class="issue">${esc(x.issueLabels[code] ?? code)}${n > 1 ? `<b>${n}</b>` : ""}</span>`).join("")}</div></div>`
