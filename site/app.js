@@ -50,6 +50,9 @@ const TEXTS = {
     turn: t => turnWords(t, `Broke in ${t.brokeIn}`, `Fixed in ${t.fixedIn}`, `still works in ${t.stillIn}`),
     issuesTitle: "Problems reported by users:",
     modelsTitle: "Detail by device", unknownModel: "Device not specified", moreModels: n => `${n} more`,
+    steadyLevel: { good: f => `Steady at ${f} fps`, mid: f => `Mostly steady at ${f} fps`, low: f => `Often drops below ${f} fps` },
+    steadyDetail: (pct, n) => `held ${pct}% of the play time, ${n} players`,
+    steadyExplain: "Frame rate: how much of the play time the game kept the rate the screen asked for (72, 90 or 120 fps, which players can change), without the headset showing old frames again. From players who chose to send it; each rate is counted apart.",
     issueLabels: { no_image: "nothing shows", flat_window: "flat window instead of VR", closes: "closes by itself", stuck_loading: "stuck on loading", no_controls: "controls missing or wrong", no_sound: "no sound", no_online: "cannot play online", slow: "slow or stuttering", no_passthrough: "no passthrough", visual: "broken image or colors", other: "something else" },
     about: "About this game", rating: p => `${p}% of Steam reviews positive`, reviews: n => `${n.toLocaleString("en")} reviews`,
     release: "Released", developer: "Developer", frame: "Steam Frame", deck: "Steam Deck",
@@ -107,6 +110,9 @@ const TEXTS = {
     turn: t => turnWords(t, `Régression en ${t.brokeIn}`, `Réglé en ${t.fixedIn}`, `fonctionne encore en ${t.stillIn}`),
     issuesTitle: "Problèmes remontés par les utilisateurs :",
     modelsTitle: "Détail par appareil", unknownModel: "Appareil non précisé", moreModels: n => `${n} autres`,
+    steadyLevel: { good: f => `Fluide à ${f} fps`, mid: f => `Plutôt fluide à ${f} fps`, low: f => `Chutes fréquentes sous ${f} fps` },
+    steadyDetail: (pct, n) => `tenu ${pct} % du temps de jeu, ${n} joueurs`,
+    steadyExplain: "Fluidité : part du temps de jeu où le jeu a tenu la fréquence demandée par l'écran (72, 90 ou 120 fps, que les joueurs peuvent changer), sans que le casque réaffiche d'anciennes images. D'après les joueurs qui ont choisi de l'envoyer ; chaque fréquence est comptée à part.",
     issueLabels: { no_image: "rien ne s'affiche", flat_window: "fenêtre plate au lieu de la VR", closes: "se ferme tout seul", stuck_loading: "bloqué au chargement", no_controls: "commandes absentes ou fausses", no_sound: "pas de son", no_online: "impossible de jouer en ligne", slow: "lent ou saccadé", no_passthrough: "pas de transparence", visual: "image cassée ou couleurs fausses", other: "autre chose" },
     about: "À propos de ce jeu", rating: p => `${p} % d'avis positifs sur Steam`, reviews: n => `${n.toLocaleString("fr")} avis`,
     release: "Sortie", developer: "Développeur", frame: "Steam Frame", deck: "Steam Deck",
@@ -193,6 +199,17 @@ function turnWords(t, broke, fixed, still) {
   return t.stillIn ? `${fixed} \u00b7 ${still}` : fixed;
 }
 
+/** How steadily a model ran the game, for the players who sent it: one sentence for each frame rate the screens asked for (a player can change it), with the share of play time that held it. */
+function steadyNote(perf) {
+  const x = t();
+  const lines = [...perf.values()].sort((a, b) => b.n - a.n || b.target - a.target).map(p => {
+    const pct = Math.round(p.sum / p.n);
+    const level = pct >= 90 ? "good" : pct >= 70 ? "mid" : "low";
+    return `<span class="steady ${level}"><b>${esc(x.steadyLevel[level](p.target))}</b> ${esc(x.steadyDetail(pct, p.n))}</span>`;
+  });
+  return `<div class="steady-list">${lines.join("")}</div>`;
+}
+
 function modelsFor(appId, device) {
   const kind = state.summary.get(appId)?.devices?.[device];
   const found = new Map();
@@ -201,6 +218,14 @@ function modelsFor(appId, device) {
     const entry = found.get(label) ?? { label, works: 0, offlineOnly: 0, fails: 0, issues: {} };
     entry.works += c.works; entry.offlineOnly += c.offlineOnly; entry.fails += c.fails;
     for (const [code, n] of Object.entries(c.issues ?? {})) entry.issues[code] = (entry.issues[code] ?? 0) + n;
+    // Two models that carry the same name share a line: their figures for the same frame rate are joined by the number of players of each.
+    for (const p of c.perf ?? []) {
+      entry.perf = entry.perf ?? new Map();
+      const joined = entry.perf.get(p.target) ?? { target: p.target, n: 0, sum: 0 };
+      joined.n += p.n;
+      joined.sum += p.pct * p.n;
+      entry.perf.set(p.target, joined);
+    }
     found.set(label, entry);
   }
   const total = e => e.works + e.offlineOnly + e.fails;
@@ -549,10 +574,10 @@ function renderGame(id) {
       const mv = verdict({ works: e.works, offlineOnly: e.offlineOnly, fails: e.fails });
       const level = mv ? mv.level : "none";
       const codes = Object.entries(e.issues).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-      return `<div class="mrow"><span class="lvl mico lv-${level}" title="${esc(x.levels[level])}" role="img" aria-label="${esc(x.levels[level])}">${ICONS[level]}</span><span class="mname">${esc(e.label)}</span>${codes.length ? `<span class="issues-list">${codes.map(([code, n]) => `<span class="issue">${esc(x.issueLabels[code] ?? code)}${n > 1 ? `<b>${n}</b>` : ""}</span>`).join("")}</span>` : ""}</div>`;
+      return `<div class="mrow"><span class="lvl mico lv-${level}" title="${esc(x.levels[level])}" role="img" aria-label="${esc(x.levels[level])}">${ICONS[level]}</span><span class="mname">${esc(e.label)}</span>${codes.length ? `<span class="issues-list">${codes.map(([code, n]) => `<span class="issue">${esc(x.issueLabels[code] ?? code)}${n > 1 ? `<b>${n}</b>` : ""}</span>`).join("")}</span>` : ""}${e.perf ? steadyNote(e.perf) : ""}</div>`;
     };
     const models = answered.length
-      ? `<details class="by-model"><summary>${esc(x.modelsTitle)} (${answered.length})</summary>${shownModels.map(modelRow).join("")}${answered.length > shownModels.length ? `<div class="mmore">${esc(x.moreModels(answered.length - shownModels.length))}</div>` : ""}</details>`
+      ? `<details class="by-model"><summary>${esc(x.modelsTitle)} (${answered.length})</summary>${shownModels.map(modelRow).join("")}${answered.length > shownModels.length ? `<div class="mmore">${esc(x.moreModels(answered.length - shownModels.length))}</div>` : ""}${answered.some(e => e.perf) ? `<div class="mmore steady-explain">${esc(x.steadyExplain)}</div>` : ""}</details>`
       : "";
     return `<div class="row st-${level}"><span class="who">${esc(x.devices[d])}</span>
       <span class="lvl lv-${level}">${ICONS[level]}${esc(x.levels[level])}</span>

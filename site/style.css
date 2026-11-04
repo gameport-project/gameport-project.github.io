@@ -364,6 +364,13 @@ img.mark { display: block; width: 34px; height: 34px; border-radius: 9px; backgr
 .mico { display: inline-flex; flex: none; }
 .mico svg { width: 20px; height: 20px; }
 .mmore { color: var(--muted); font-size: 13px; padding-top: 8px; }
+.steady-list { flex-basis: 100%; display: flex; flex-direction: column; gap: 3px; padding-left: 30px; }
+.steady { font-size: 13px; color: var(--muted); }
+.steady b { font-weight: 600; }
+.steady.good b { color: var(--works); }
+.steady.mid b { color: var(--mixed); }
+.steady.low b { color: var(--fails); }
+.steady-explain { line-height: 1.45; max-width: 70ch; }
 .row .counts { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; align-content: flex-start; align-self: start; gap: 8px; line-height: 1; }
 .tally { display: inline-flex; align-items: center; gap: 7px; padding: 3px 11px; border-radius: 999px; font-size: 13px; background: rgba(255, 255, 255, .06); border: 1px solid var(--line); color: var(--text); }
 .tally i { width: 8px; height: 8px; border-radius: 50%; }
