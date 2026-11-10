@@ -43,6 +43,8 @@ const TEXTS = {
       showNone: "Show the games with no report", remove: "Remove the filter",
     },
     levels: { works: "Works", offline: "Works offline only", mixed: "Mixed reports", fails: "Problems reported", incompatible: "Incompatible", none: "No report yet" },
+    onlyOn: "only on",
+    headsUp: "To know",
     reports: "What players report", reportsNone: "No player has said anything about this game yet.",
     unreliable: "Few answers so far: the result may not be reliable.",
     countNames: { works: "Works", offline: "Offline only", fails: "Does not work" },
@@ -103,6 +105,8 @@ const TEXTS = {
       showNone: "Afficher les jeux sans retour", remove: "Retirer le filtre",
     },
     levels: { works: "Fonctionne", offline: "Fonctionne hors ligne seulement", mixed: "Avis partagés", fails: "Problèmes signalés", incompatible: "Incompatible", none: "Pas encore de rapport" },
+    onlyOn: "seulement sur",
+    headsUp: "À savoir",
     reports: "Ce que rapportent les joueurs", reportsNone: "Aucun joueur n'a encore donné son avis sur ce jeu.",
     unreliable: "Peu de réponses pour l'instant : le résultat peut ne pas être fiable.",
     countNames: { works: "Fonctionne", offline: "Hors ligne seulement", fails: "Ne fonctionne pas" },
@@ -255,9 +259,34 @@ function countsFor(appId, device) {
 
 const RANK = { works: 0, offline: 1, mixed: 2, fails: 3, incompatible: 4 };
 
-/** What a game is known as: incompatible when it is on the developer's list (whatever the players said), else the verdict of the answers, else null. */
+/** The kind of device a name in the list stands for: a kind as it is (quest, pico...), a Quest or a Pico by its name, else nothing (a phone model is only known by its code). */
+function kindOfName(name) {
+  const n = String(name).trim().toLowerCase();
+  if (DEVICES.includes(n) && n !== "all") return n;
+  if (n.startsWith("meta quest") || n.startsWith("quest") || n.startsWith("oculus")) return "quest";
+  if (n.startsWith("pico")) return "pico";
+  return null;
+}
+
+/** The lines of the developer's list that hold for a game on a kind of device (every line for "all devices"): a line with no device holds everywhere. A game has a line for each reason. */
+function blockedLines(appid, device) {
+  return linesFor(appid, device).filter(l => state.reasons[l.reason]?.kind !== "warns");
+}
+
+/** The lines whose reason only warns: the game runs, and its page says what is to be known. They never make a game incompatible. */
+function warningLines(appid, device) {
+  return linesFor(appid, device).filter(l => state.reasons[l.reason]?.kind === "warns");
+}
+
+function linesFor(appid, device) {
+  const lines = state.incompatible.get(appid) || [];
+  if (device === "all") return lines;
+  return lines.filter(l => !l.devices || !l.devices.length || l.devices.some(d => kindOfName(d) === device));
+}
+
+/** What a game is known as: incompatible when it is on the developer's list for the device (whatever the players said), else the verdict of the answers, else null. */
 function standing(g, device) {
-  if (state.incompatible.has(g.appid)) return { level: "incompatible", total: 0, unreliable: false };
+  if (blockedLines(g.appid, device).length) return { level: "incompatible", total: 0, unreliable: false };
   return verdict(countsFor(g.appid, device));
 }
 
@@ -529,11 +558,18 @@ function renderGame(id) {
   const gameportBtn = (id, label) => `<a class="btn" href="#/g/${id}">${GAMEPORT_ICON}${esc(label)}</a>`;
   const steamLinks = [...demos.map(d => steamBtn(d.appid, x.demoSteam)), ...(g.parent ? [steamBtn(g.parent, x.fullGameSteam)] : [])].join("");
   const gameportLinks = [...demos.map(d => gameportBtn(d.appid, x.demoGp)), ...(parent ? [gameportBtn(parent.appid, x.fullGameGp)] : [])].join("");
-  const blocked = state.incompatible.get(g.appid);
-  const why = blocked ? state.reasons[blocked.reason] : null;
-  const blockedNote = blocked && why
-    ? `<p class="warn inline lv-incompatible"><span class="warn-mark" aria-hidden="true">${ICONS.fails}</span><span><strong>${esc(x.levels.incompatible)}</strong>${state.lang === "fr" ? " : " : ": "}${esc(why.title[state.lang] ?? why.title.en)}${state.lang === "fr" ? " : " : ": "}${esc(why.text[state.lang] ?? why.text.en)}</span></p>`
-    : "";
+  const sep = state.lang === "fr" ? " : " : ": ";
+  const blockedNote = blockedLines(g.appid, state.device).map(line => {
+    const why = state.reasons[line.reason];
+    if (!why) return "";
+    const only = line.devices && line.devices.length ? ` (${esc(x.onlyOn)} ${esc(line.devices.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(", "))})` : "";
+    return `<p class="warn inline lv-incompatible"><span class="warn-mark" aria-hidden="true">${ICONS.fails}</span><span><strong>${esc(x.levels.incompatible)}</strong>${only}${sep}${esc(why.title[state.lang] ?? why.title.en)}${sep}${esc(why.text[state.lang] ?? why.text.en)}</span></p>`;
+  }).join("") + warningLines(g.appid, state.device).map(line => {
+    const why = state.reasons[line.reason];
+    if (!why) return "";
+    const only = line.devices && line.devices.length ? ` (${esc(x.onlyOn)} ${esc(line.devices.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(", "))})` : "";
+    return `<p class="warn inline lv-mixed"><span class="warn-mark" aria-hidden="true">${ICONS.mixed}</span><span><strong>${esc(x.headsUp)}</strong>${only}${sep}${esc(why.title[state.lang] ?? why.title.en)}${sep}${esc(why.text[state.lang] ?? why.text.en)}</span></p>`;
+  }).join("");
   // The test channels of Steam that hold an Android build, with the day of their last update; a game that has nothing else says that its version is only there.
   const channelsPanel = g.channels && g.channels.length
     ? `<div class="cols one"><section class="panel channels">
@@ -659,7 +695,8 @@ async function load() {
   state.games = catalog.apps.filter(a => a.installable || a.channelOnly);
   state.byId = new Map(catalog.apps.map(a => [a.appid, a]));
   state.summary = new Map((summary.games || []).map(g => [g.appId, g]));
-  state.incompatible = new Map((incompatible.games || []).map(g => [g.appId, g]));
+  state.incompatible = new Map();
+  for (const g of incompatible.games || []) state.incompatible.set(g.appId, [...(state.incompatible.get(g.appId) || []), g]);
   state.reasons = incompatible.reasons || {};
 }
 

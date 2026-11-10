@@ -21,7 +21,7 @@ else
   curl -fsS --retry 3 "https://raw.githubusercontent.com/gameport-project/gameport-catalog/main/v1/catalog.json" -o "$here/site/data/catalog.json"
 fi
 curl -fsS --retry 3 "https://gameport-relay.gameport.workers.dev$summary_path" -o "$here/site/data/summary.json"
-curl -fsS --retry 3 "https://gameport-relay.gameport.workers.dev/incompatible" -o "$here/site/data/incompatible.json"
+curl -fsS --retry 3 "https://gameport-relay.gameport.workers.dev/incompatible?v=2" -o "$here/site/data/incompatible.json"
 python3 - "$here/site/data" <<'PY'
 import json, sys
 folder = sys.argv[1]
