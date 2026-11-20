@@ -269,6 +269,7 @@ img.mark { display: block; width: 34px; height: 34px; border-radius: 9px; backgr
 .dc { width: 18px; height: 18px; flex: none; }
 .links .discord { display: inline-flex; align-items: center; gap: 7px; }
 .links .github { display: inline-flex; align-items: center; gap: 7px; }
+.links .kofi { display: inline-flex; align-items: center; gap: 7px; }
 
 /* a word of caution, in orange: tinted, never a block of coloured text */
 .notice {
@@ -299,7 +300,7 @@ img.mark { display: block; width: 34px; height: 34px; border-radius: 9px; backgr
   .top { flex-wrap: nowrap; gap: 8px; padding: 10px 12px; }
   .links { flex-wrap: nowrap; gap: 6px; }
   .links a, .links button { padding: 7px 12px; }
-  .links .discord, .links .github { padding: 8px; }
+  .links .discord, .links .github, .links .kofi { padding: 8px; }
   .links .lbl, .long { display: none; }
   .short { display: inline; }
   .dc { width: 20px; height: 20px; }
