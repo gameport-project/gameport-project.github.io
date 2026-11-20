@@ -310,7 +310,7 @@ img.mark { display: block; width: 34px; height: 34px; border-radius: 9px; backgr
 
   .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .group[data-group="type"] { grid-column: 1 / -1; }
-  .group[data-group="device"], .group[data-group="compat"], .group[data-group="adult"] { display: none; }
+  .group[data-group="device"], .group[data-group="compat"], .group[data-group="adult"], .group[data-group="channels"] { display: none; }
   .pick[data-pick="adult"] { grid-column: 1 / -1; }
   .pick { display: flex; }
 }
@@ -393,3 +393,8 @@ button.tally:focus-visible { outline: 2px solid var(--text); outline-offset: 2px
 .issue { background: rgba(255, 255, 255, .06); border: 1px solid var(--line); }
 .issue b { color: var(--text); }
 .row .issues-title { margin: 6px 0 8px; color: #fff; font-size: 16px; font-weight: 700; }
+
+/* on a phone the buttons of a game's header stand over the picture, so its text starts under them instead of behind them */
+@media (max-width: 600px) {
+  .game-head > div:not(.head-actions) { padding-top: 76px; }
+}
